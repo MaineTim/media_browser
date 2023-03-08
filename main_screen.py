@@ -13,29 +13,12 @@ import time
 # Textual imports.
 from textual.app import ComposeResult
 from textual.screen import Screen
-from textual.widgets import DataTable, Footer, Header, Input
+from textual.widgets import DataTable, Footer, Header
 
 ################################################################################
 # Local imports.
 import util as ut
-
-# from .filters      import Filters
-# from .error_boxen  import NoMatchingActivities
-# from .activity     import Activity
-
-
-################################################################################
-class FilenameInput(Input):
-    BINDINGS = [("escape", "input_cancel", "Cancel")]
-
-    def action_input_cancel(self):
-        self.value = ""
-        self.insert_text_at_cursor(self.parent.table.get_row_at(self.parent.current_hi_row)[0])
-        self.parent.set_focus(self.parent.table)
-
-    def action_submit(self):
-        ut.rename_file(self.parent, self.value)
-        self.value = ""
+from widgets import FilenameInput
 
 
 ################################################################################

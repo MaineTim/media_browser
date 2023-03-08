@@ -8,6 +8,7 @@ from textual.app import App
 # Local imports.
 from main_screen import Main
 
+
 ##############################################################################
 class Browser(App[None]):
     """The main application class."""
