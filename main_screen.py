@@ -18,7 +18,7 @@ from textual.widgets import DataTable, Footer, Header
 ################################################################################
 # Local imports.
 import util as ut
-from widgets import FilenameInput
+from widgets import FilenameInput, SearchInput
 
 
 ################################################################################
@@ -73,6 +73,7 @@ class Main(Screen):
         ("space", "run_viewer", "View"),
         ("d", "delete_file", "Del"),
         ("q", "quit", "Quit"),
+        ("s", "search", "Search"),
     ]
 
     def __init__(self):
@@ -102,6 +103,12 @@ class Main(Screen):
             stderr=subprocess.DEVNULL,
         )
         self.vlc_row = self.current_hi_row
+
+    def action_search(self):
+        self.filename_input.remove()
+        self.search_input = SearchInput()
+        self.mount(self.search_input, after=self.table)
+        self.set_focus(self.search_input)
 
     def compose(self) -> ComposeResult:
         yield Header()
