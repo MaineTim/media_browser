@@ -1,7 +1,10 @@
-"""The main screen for Media_Browser"""
+"""Provides the main screen for the application."""
 
 ################################################################################
 # Python imports.
+import argparse
+import os
+import pickle
 import platform
 import subprocess
 import time
@@ -15,26 +18,21 @@ from textual.widgets import DataTable, Footer, Header
 ################################################################################
 # Local imports.
 import util as ut
-from widgets import FilenameInput, SearchInput
-from search_screen import Search
+from widgets import FilenameInput
 
 
 ################################################################################
-
-
-class Main(Screen):
+class Search(Screen):
     """The main application screen."""
 
     BINDINGS = [
         ("space", "run_viewer", "View"),
-        ("d", "delete_file", "Del"),
         ("q", "quit", "Quit"),
         ("s", "search", "Search"),
     ]
 
     def __init__(self):
-        super(Main, self).__init__()
-
+        super(Search, self).__init__()
         self.current_hi_row = 0
         self.current_row = 0
         self.enter_pressed = False
@@ -60,12 +58,6 @@ class Main(Screen):
             stderr=subprocess.DEVNULL,
         )
         self.vlc_row = self.current_hi_row
-
-    def action_search(self):
-        self.filename_input.remove()
-        self.search_input = SearchInput()
-        self.mount(self.search_input, after=self.table)
-        self.set_focus(self.search_input)
 
     def compose(self) -> ComposeResult:
         yield Header()
@@ -112,12 +104,12 @@ class Main(Screen):
             ("Curr Dur", 10),
             ("Index", 0),
         ]
-        self.log(f"{len(self.app.master)} records found.")
+        self.log(f"{len(self.app.entries)} records found.")
         self.table = self.query_one(DataTable)
         self.table.cursor_type = "row"
         for c in columns:
             self.column_keys.append(self.table.add_column(c[0], width=c[1]))
-        for i, item in enumerate(self.app.master):
+        for i, item in enumerate(self.app.entries):
             self.table.add_row(
                 item.name,
                 item.original_size,

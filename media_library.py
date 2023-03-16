@@ -1,4 +1,4 @@
-# Media Library Version 23-09-03-a
+# Media Library Version 23-03-15-a
 
 import bisect
 import csv
@@ -10,26 +10,47 @@ import os
 import pickle
 import typing
 
+from dataclasses import dataclass, field
+
 import pdb
 
-FileEntries = typing.NamedTuple(
-    "FileEntries",
-    [
-        ("path", str),
-        ("name", str),
-        ("original_size", int),
-        ("current_size", int),
-        ("date", datetime.datetime),
-        ("backups", int),
-        ("paths", typing.List),
-        ("original_duration", float),
-        ("current_duration", float),
-        ("ino", int),
-        ("nlink", int),
-        ("csum", str),
-        ("data", typing.Dict),
-    ],
-)
+# Obsolete entry schema.
+# FileEntries = typing.NamedTuple(
+#     "FileEntries",
+#     [
+#         ("path", str),
+#         ("name", str),
+#         ("original_size", int),
+#         ("current_size", int),
+#         ("date", datetime.datetime),
+#         ("backups", int),
+#         ("paths", typing.List),
+#         ("original_duration", float),
+#         ("current_duration", float),
+#         ("ino", int),
+#         ("nlink", int),
+#         ("csum", str),
+#         ("data", typing.Dict),
+#     ],
+# )
+
+
+@dataclass
+class Entries:
+    UID: str = ""
+    path: str = ""
+    name: str = ""
+    original_size: int = 0
+    current_size: int = 0
+    date: datetime.datetime = datetime.datetime.now()
+    backups: int = 0
+    paths: list = field(default_factory=list)
+    original_duration: float = 0.0
+    current_duration: float = 0.0
+    ino: int = 0
+    nlink: int = 0
+    csum: str = ""
+    data: dict = field(default_factory=dict)
 
 
 def checksum(filename, hash_factory=hashlib.md5, chunk_num_blocks=128):
@@ -96,7 +117,7 @@ def split_backup_path(path):
 
 def create_file_entry(path):
     stat_entry = os.stat(path)
-    entry = FileEntries(
+    entry = Entries(
         path=os.path.dirname(path),
         name=os.path.basename(path),
         original_size=stat_entry.st_size,
@@ -111,7 +132,6 @@ def create_file_entry(path):
         csum="",
         data={},
     )
-
     return entry
 
 
@@ -129,7 +149,17 @@ def create_file_list(path):
     return file_entries
 
 
-def write_output(master: list, master_output_path: str, write_csv: bool):
+def read_master_file(master_input_path):
+    if os.path.exists(master_input_path):
+        with open(master_input_path, "rb") as f:
+            master = pickle.load(f)
+        print(f"{len(master)} records found.")
+        return master
+    else:
+        return []
+
+
+def write_entries_file(master: list, master_output_path: str, write_csv: bool):
     with open(master_output_path, "wb") as f:
         pickle.dump(master, f)
 
@@ -139,8 +169,10 @@ def write_output(master: list, master_output_path: str, write_csv: bool):
             w = csv.writer(f, quoting=csv.QUOTE_NONNUMERIC)
             w.writerow(
                 [
+                    "Serialnum",
                     "Path",
                     "Name",
+                    "Ext",
                     "O_Size",
                     "C_Size",
                     "Date",
@@ -154,6 +186,7 @@ def write_output(master: list, master_output_path: str, write_csv: bool):
             )
             w.writerows(
                 [
+                    item.UID,
                     item.path,
                     item.name,
                     item.original_size,
