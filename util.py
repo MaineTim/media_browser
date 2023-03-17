@@ -1,6 +1,7 @@
 import os
 import platform
 import psutil
+import re
 import shutil
 import sys
 
@@ -89,14 +90,52 @@ def rename_file(self, new_fn):
     )
     self.app.master[master_row] = entry
 
+def parse_target_strings(args):
+    """
+    Create a regex that will match the set of targets given.
+    "OR" is the only boolean implemented.
+    """
+    target_regex = ""
+    targets = []
+    or_count = 0
+    i = -1
+    for token in args:
+        i += 1
+        if token == "OR" and i > 0 and len(args) > i:
+            if or_count < 1:
+                target_regex = target_regex[: len(target_regex) - 1] + "[" + target_regex[len(target_regex) - 1 :]
+            or_count = 2
+            i -= 1
+        else:
+            if or_count == 1:
+                target_regex += "]"
+            target_regex += str(i)
+            targets.append(token)
+            or_count -= 1
+    if or_count > 0:
+        target_regex += "]"
+    return target_regex, targets
 
-def search_strings(master, args):
-    ah_search = ah.AhoCorasick(list(map(lambda x: x.upper(), args)))
-    arg_set = set(range(0, len(args)))
+
+def search_strings(self, master, args, case_insensitive=True):
+    """
+    Search each entry in master, finding hits against a list of targets.
+    Then match that list to a regex, and return the list of indexes to entries that match.
+    """
+    target_regex, targets = parse_target_strings(args)
+    self.log(target_regex, targets)
+    if case_insensitive:
+        ah_search = ah.AhoCorasick(list(map(lambda x: x.upper(), targets)))
+    else:
+        ah_search = ah.AhoCorasick(targets)
     file_indexes = []
     for i, item in enumerate(master):
-        results = ah_search.find_matches_as_indexes(item.name.upper())
-        if results != [] and set(list(zip(*results))[0]) == arg_set:
-            file_indexes.append(i)
-    entries = [master[i] for i in file_indexes]
-    return entries
+        if case_insensitive:
+            results = ah_search.find_matches_as_indexes(item.name.upper())
+        else:
+            results = ah_search.find_matches_as_indexes(item.name)
+        if results != []:
+            tokens = "".join([str(x) for x in (list(zip(*results))[0])])
+            if re.search(target_regex, tokens):
+                file_indexes.append(i)
+    return [master[index] for index in file_indexes]

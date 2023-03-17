@@ -33,6 +33,7 @@ class SearchInput(Input):
         self.remove()
 
     def action_submit(self):
-        self.app.entries = ut.search_strings(self.app.master, self.value)
+        self.targets = self.value.split()
+        self.app.entries = ut.search_strings(self, self.app.master, self.targets)
         self.app.push_screen("search")
         self.action_input_cancel()

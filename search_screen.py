@@ -26,9 +26,10 @@ class Search(Screen):
     """The main application screen."""
 
     BINDINGS = [
+        ("escape", "return_to_main", "Main Screen"),
         ("space", "run_viewer", "View"),
+        ("d", "delete_file", "Del"),      
         ("q", "quit", "Quit"),
-        ("s", "search", "Search"),
     ]
 
     def __init__(self):
@@ -44,6 +45,9 @@ class Search(Screen):
 
     def action_delete_file(self):
         ut.delete_file(self)
+
+    def action_return_to_main(self):
+        self.app.pop_screen()
 
     def action_run_viewer(self):
         if self.p_vlc:
@@ -109,6 +113,29 @@ class Search(Screen):
         self.table.cursor_type = "row"
         for c in columns:
             self.column_keys.append(self.table.add_column(c[0], width=c[1]))
+        for i, item in enumerate(self.app.entries):
+            self.table.add_row(
+                item.name,
+                item.original_size,
+                item.current_size,
+                item.date.strftime("%Y-%m-%d %H:%M:%S"),
+                item.backups,
+                time.strftime("%H:%M:%S", time.gmtime(float(item.original_duration))),
+                time.strftime("%H:%M:%S", time.gmtime(float(item.current_duration))),
+                i,
+            )
+        self.sort_key = self.column_keys[0]
+        self.table.sort(self.sort_key)
+        self.filename_input = self.query_one(FilenameInput)
+        self.filename_input.action_delete_left_all()
+        self.filename_input.insert_text_at_cursor(self.table.get_row_at(0)[0])
+        self.set_focus(self.table)
+        if self.app.args.translation_list:
+            self.log(self.app.args.translation_list.keys())
+
+    def on_screen_resume(self):
+        self.log("We resumed!")
+        self.table.clear()
         for i, item in enumerate(self.app.entries):
             self.table.add_row(
                 item.name,
