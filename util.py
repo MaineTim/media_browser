@@ -40,12 +40,12 @@ def exit_error(*error_data):
     sys.exit()
 
 
-def get_path(self, index):
-    path = self.app.master[index].path
+def get_path(self, database, index):
+    path = database[index].path
 
     if self.app.args.translation_list and path in self.app.args.translation_list:
         path = self.app.args.translation_list[path]
-    return os.path.normpath(os.path.join(path, self.app.master[index].name))
+    return os.path.normpath(os.path.join(path, database[index].name))
 
 
 def kill_vlc(self):

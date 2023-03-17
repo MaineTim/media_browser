@@ -56,8 +56,12 @@ class Search(Screen):
             self.vlc_row = None
             return
 
+        self.log(self.table.get_row_at(self.current_hi_row)[7])
+        self.log(self.table.get_row_at(self.current_hi_row))
+        self.log(ut.get_path(self, self.app.entries, self.table.get_row_at(self.current_hi_row)[7]))
+
         self.p_vlc = subprocess.Popen(
-            ut.build_command("vlc", ut.get_path(self, self.table.get_row_at(self.current_hi_row)[7])),
+            ut.build_command("vlc", ut.get_path(self, self.app.entries, self.table.get_row_at(self.current_hi_row)[7])),
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
         )

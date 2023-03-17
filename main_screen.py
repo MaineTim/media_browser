@@ -55,7 +55,7 @@ class Main(Screen):
             return
 
         self.p_vlc = subprocess.Popen(
-            ut.build_command("vlc", ut.get_path(self, self.table.get_row_at(self.current_hi_row)[7])),
+            ut.build_command("vlc", ut.get_path(self, self.app.master, self.table.get_row_at(self.current_hi_row)[7])),
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
         )
