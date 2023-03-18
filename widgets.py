@@ -35,5 +35,6 @@ class SearchInput(Input):
     def action_submit(self):
         self.targets = self.value.split()
         self.app.entries = ut.search_strings(self, self.app.master, self.targets)
-        self.app.push_screen("search")
+        if self.app.entries != []:
+            self.app.push_screen("search")
         self.action_input_cancel()

@@ -85,7 +85,7 @@ class Browser(App[None]):
 
     def on_mount(self) -> None:
         self.entries = []
-        self.deleted = []
+        self.changed = []
         self.args = Getargs()
         master = Masterfile(self.app.args.master_input_path)
         self.master = master.master

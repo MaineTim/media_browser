@@ -26,7 +26,7 @@ class Main(Screen):
         ("space", "run_viewer", "View"),
         ("d", "delete_file", "Del"),
         ("q", "quit", "Quit"),
-        ("s", "search", "Search"),
+        ("/", "search", "Search"),
     ]
 
     def __init__(self):
@@ -135,7 +135,11 @@ class Main(Screen):
             self.log(self.app.args.translation_list.keys())
 
     def on_screen_resume(self):
-        if self.app.deleted != []:
-            for del_row in self.app.deleted:
-                self.table.update_cell(del_row, self.column_keys[0], "DELETED")
-            self.app.deleted = []
+        if self.app.changed != []:
+            for row, change, data in self.app.changed:
+                match change:
+                    case "D":
+                        self.table.update_cell(row, self.column_keys[0], "DELETED")
+                    case "R":
+                        self.table.update_cell(row, self.column_keys[0], data)
+            self.app.changed = []

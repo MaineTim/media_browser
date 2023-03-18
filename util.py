@@ -21,14 +21,16 @@ def build_command(*args):
 def delete_file(self):
     master_row = self.table.get_row_at(self.current_hi_row)[7]
     current_data = self.app.master[master_row]
-    current_file = os.path.join(current_data.path, current_data.name)
-    new_path = os.path.join(os.path.split(current_data.path)[0], "DelLinks/")
-    if self.app.args.verbose:
-        self.log(f"{current_file} -> {new_path}")
-    if not self.app.args.no_action:
-        shutil.move(current_file, new_path)
-    self.app.master[master_row].name = "DELETED"
-    self.app.deleted.append(self.app.master[master_row].data["row"])
+    if "deleted" not in current_data.data.keys():
+        current_file = os.path.join(current_data.path, current_data.name)
+        new_path = os.path.join(os.path.split(current_data.path)[0], "DelLinks/")
+        if self.app.args.verbose:
+            self.log(f"{current_file} -> {new_path}")
+        if not self.app.args.no_action:
+            shutil.move(current_file, new_path)
+        self.app.master[master_row].name = "DELETED"
+        self.app.master[master_row].data["deleted"] = True
+        self.app.changed.append((self.app.master[master_row].data["row"], "D", ""))
     self.set_focus(self.table)
     self.table.update_cell_at((self.current_hi_row, 0), "DELETED")
 
@@ -75,22 +77,8 @@ def rename_file(self, new_fn):
         shutil.move(current_file, new_file)
     self.set_focus(self.table)
     self.table.update_cell_at((self.current_row, 0), new_fn)
-    entry = Entries(
-        path=current_data.path,
-        name=new_fn,
-        original_size=current_data.original_size,
-        current_size=current_data.current_size,
-        date=current_data.date,
-        backups=current_data.backups,
-        paths=current_data.paths,
-        original_duration=current_data.original_duration,
-        current_duration=current_data.current_duration,
-        ino=current_data.ino,
-        nlink=current_data.nlink,
-        csum=current_data.csum,
-        data=current_data.data,
-    )
-    self.app.master[master_row] = entry
+    self.app.master[master_row].name = new_fn
+    self.app.changed.append((self.app.master[master_row].data["row"], "R", new_fn))
 
 
 def parse_target_strings(args):
@@ -138,6 +126,7 @@ def search_strings(self, master, args, case_insensitive=True):
         else:
             results = ah_search.find_matches_as_indexes(item.name)
         if results != []:
+            results.sort(key=lambda x: x[0])
             tokens = "".join([str(x) for x in (list(zip(*results))[0])])
             if re.search(target_regex, tokens):
                 file_indexes.append(i)
