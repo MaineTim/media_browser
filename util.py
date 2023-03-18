@@ -27,6 +27,8 @@ def delete_file(self):
         self.log(f"{current_file} -> {new_path}")
     if not self.app.args.no_action:
         shutil.move(current_file, new_path)
+    self.app.master[master_row].name = "DELETED"
+    self.app.deleted.append(self.app.master[master_row].data["row"])
     self.set_focus(self.table)
     self.table.update_cell_at((self.current_hi_row, 0), "DELETED")
 
@@ -40,12 +42,12 @@ def exit_error(*error_data):
     sys.exit()
 
 
-def get_path(self, database, index):
-    path = database[index].path
+def get_path(self, index):
+    path = self.app.master[index].path
 
     if self.app.args.translation_list and path in self.app.args.translation_list:
         path = self.app.args.translation_list[path]
-    return os.path.normpath(os.path.join(path, database[index].name))
+    return os.path.normpath(os.path.join(path, self.app.master[index].name))
 
 
 def kill_vlc(self):
@@ -89,6 +91,7 @@ def rename_file(self, new_fn):
         data=current_data.data,
     )
     self.app.master[master_row] = entry
+
 
 def parse_target_strings(args):
     """

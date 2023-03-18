@@ -28,7 +28,7 @@ class Search(Screen):
     BINDINGS = [
         ("escape", "return_to_main", "Main Screen"),
         ("space", "run_viewer", "View"),
-        ("d", "delete_file", "Del"),      
+        ("d", "delete_file", "Del"),
         ("q", "quit", "Quit"),
     ]
 
@@ -55,13 +55,8 @@ class Search(Screen):
         if self.vlc_row == self.current_hi_row:
             self.vlc_row = None
             return
-
-        self.log(self.table.get_row_at(self.current_hi_row)[7])
-        self.log(self.table.get_row_at(self.current_hi_row))
-        self.log(ut.get_path(self, self.app.entries, self.table.get_row_at(self.current_hi_row)[7]))
-
         self.p_vlc = subprocess.Popen(
-            ut.build_command("vlc", ut.get_path(self, self.app.entries, self.table.get_row_at(self.current_hi_row)[7])),
+            ut.build_command("vlc", ut.get_path(self, self.table.get_row_at(self.current_hi_row)[7])),
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
         )
@@ -126,7 +121,7 @@ class Search(Screen):
                 item.backups,
                 time.strftime("%H:%M:%S", time.gmtime(float(item.original_duration))),
                 time.strftime("%H:%M:%S", time.gmtime(float(item.current_duration))),
-                i,
+                item.data["index"],
             )
         self.sort_key = self.column_keys[0]
         self.table.sort(self.sort_key)
@@ -138,7 +133,6 @@ class Search(Screen):
             self.log(self.app.args.translation_list.keys())
 
     def on_screen_resume(self):
-        self.log("We resumed!")
         self.table.clear()
         for i, item in enumerate(self.app.entries):
             self.table.add_row(
@@ -149,7 +143,7 @@ class Search(Screen):
                 item.backups,
                 time.strftime("%H:%M:%S", time.gmtime(float(item.original_duration))),
                 time.strftime("%H:%M:%S", time.gmtime(float(item.current_duration))),
-                i,
+                item.data["index"],
             )
         self.sort_key = self.column_keys[0]
         self.table.sort(self.sort_key)

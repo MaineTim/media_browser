@@ -1,6 +1,7 @@
 """Main application class for the app."""
 
 import argparse
+from dataclasses import dataclass
 import os
 import pickle
 
@@ -52,11 +53,15 @@ class Getargs:
 ################################################################################
 class Masterfile:
     def __init__(self, mf_path):
+        self.master = []
         if os.path.exists(mf_path):
             with open(mf_path, "rb") as f:
-                self.master = pickle.load(f)
+                master = pickle.load(f)
         else:
             ut.exit_error(f"Database file not found: {mf_path}")
+        for i, item in enumerate(master):
+            item.data["index"] = i
+            self.master.append(item)
 
 
 ##############################################################################
@@ -80,6 +85,7 @@ class Browser(App[None]):
 
     def on_mount(self) -> None:
         self.entries = []
+        self.deleted = []
         self.args = Getargs()
         master = Masterfile(self.app.args.master_input_path)
         self.master = master.master

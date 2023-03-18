@@ -16,12 +16,9 @@ from textual.widgets import DataTable, Footer, Header
 # Local imports.
 import util as ut
 from widgets import FilenameInput, SearchInput
-from search_screen import Search
 
 
 ################################################################################
-
-
 class Main(Screen):
     """The main application screen."""
 
@@ -55,7 +52,7 @@ class Main(Screen):
             return
 
         self.p_vlc = subprocess.Popen(
-            ut.build_command("vlc", ut.get_path(self, self.app.master, self.table.get_row_at(self.current_hi_row)[7])),
+            ut.build_command("vlc", ut.get_path(self, self.table.get_row_at(self.current_hi_row)[7])),
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
         )
@@ -118,7 +115,7 @@ class Main(Screen):
         for c in columns:
             self.column_keys.append(self.table.add_column(c[0], width=c[1]))
         for i, item in enumerate(self.app.master):
-            self.table.add_row(
+            self.app.master[i].data["row"] = self.table.add_row(
                 item.name,
                 item.original_size,
                 item.current_size,
@@ -126,7 +123,7 @@ class Main(Screen):
                 item.backups,
                 time.strftime("%H:%M:%S", time.gmtime(float(item.original_duration))),
                 time.strftime("%H:%M:%S", time.gmtime(float(item.current_duration))),
-                i,
+                item.data["index"],
             )
         self.sort_key = self.column_keys[0]
         self.table.sort(self.sort_key)
@@ -136,3 +133,9 @@ class Main(Screen):
         self.set_focus(self.table)
         if self.app.args.translation_list:
             self.log(self.app.args.translation_list.keys())
+
+    def on_screen_resume(self):
+        if self.app.deleted != []:
+            for del_row in self.app.deleted:
+                self.table.update_cell(del_row, self.column_keys[0], "DELETED")
+            self.app.deleted = []
