@@ -81,6 +81,16 @@ def rename_file(self, new_fn):
     self.app.changed.append((self.app.master[master_row].data["row"], "R", new_fn))
 
 
+def remove_char(string, index):
+
+    if index == 0:
+        return string[1:]
+    elif index == len(string) - 1:
+        return string[:-1]
+    else:
+        return string[:index] + string[index + 1 :]
+
+
 def parse_target_strings(args):
     """
     Create a regex that will match the set of targets given.
@@ -91,6 +101,11 @@ def parse_target_strings(args):
     or_count = 0
     i = -1
     for token in args:
+        while (quote := token.find('"')) != -1:
+            if (quote > 0) and token[quote - 1] == chr(92):
+                token = remove_char(token, quote - 1)
+            else:
+                token = remove_char(token, quote)
         i += 1
         if token == "OR" and i > 0 and len(args) > i:
             if or_count < 1:
@@ -114,7 +129,6 @@ def search_strings(self, master, args, case_insensitive=True):
     Then match that list to a regex, and return the list of indexes to entries that match.
     """
     target_regex, targets = parse_target_strings(args)
-    self.log(target_regex, targets)
     if case_insensitive:
         ah_search = ah.AhoCorasick(list(map(lambda x: x.upper(), targets)))
     else:

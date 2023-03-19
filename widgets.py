@@ -1,3 +1,5 @@
+import re
+
 ################################################################################
 # Textual imports.
 from textual.widgets import Input
@@ -33,7 +35,7 @@ class SearchInput(Input):
         self.remove()
 
     def action_submit(self):
-        self.targets = self.value.split()
+        self.targets = re.findall(r'(?:[^\s,"]|"(?:\\.|[^"])*")+', self.value)
         self.app.entries = ut.search_strings(self, self.app.master, self.targets)
         if self.app.entries != []:
             self.app.push_screen("search")
