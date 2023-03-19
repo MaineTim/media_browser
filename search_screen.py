@@ -123,7 +123,7 @@ class Search(Screen):
                 time.strftime("%H:%M:%S", time.gmtime(float(item.current_duration))),
                 item.data["index"],
             )
-        self.sort_key = self.column_keys[0]
+        self.sort_key = self.column_keys[6]
         self.table.sort(self.sort_key)
         self.filename_input = self.query_one(FilenameInput)
         self.filename_input.action_delete_left_all()
@@ -145,7 +145,7 @@ class Search(Screen):
                 time.strftime("%H:%M:%S", time.gmtime(float(item.current_duration))),
                 item.data["index"],
             )
-        self.sort_key = self.column_keys[0]
+        self.sort_key = self.column_keys[6]
         self.table.sort(self.sort_key)
         self.filename_input = self.query_one(FilenameInput)
         self.filename_input.action_delete_left_all()
