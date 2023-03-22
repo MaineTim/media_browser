@@ -22,6 +22,13 @@ class FilenameInput(Input):
         ut.rename_file(self.parent, self.value)
         self.action_input_cancel()
 
+    def on_focus_move_cursor(self):
+        self.action_cursor_left_word()
+        self.action_cursor_left()
+
+    def on_focus(self):
+        self.call_after_refresh(self.on_focus_move_cursor)
+
 
 ################################################################################
 class SearchInput(Input):
