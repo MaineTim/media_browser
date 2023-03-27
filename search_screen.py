@@ -89,9 +89,6 @@ class Search(Screen):
         self.filename_input.action_delete_left_all()
         self.filename_input.insert_text_at_cursor(self.table.get_row_at(event.cursor_row)[0])
 
-    def on_filename_input_submitted(self, event):
-        ut.rename_file(self, event.input.value)
-
     def on_key(self, event):
         if event.key == "enter":
             self.enter_pressed = True

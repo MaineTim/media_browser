@@ -84,6 +84,7 @@ class Browser(App[None]):
     """The collection of application screens."""
 
     def on_mount(self) -> None:
+        self.yes = False
         self.entries = []
         self.changed = []
         self.args = Getargs()

@@ -66,23 +66,18 @@ def kill_vlc(self):
     self.p_vlc = None
 
 
-def rename_file(self, new_fn):
-    master_row = self.table.get_row_at(self.current_row)[7]
-    current_data = self.app.master[master_row]
-    current_file = os.path.join(current_data.path, current_data.name)
-    new_file = os.path.join(current_data.path, new_fn)
+def rename_file(self):
     if self.app.args.verbose:
-        self.log(f"{current_file} -> {new_file}")
+        self.log(f"{self.current_file} -> {self.new_file}")
     if not self.app.args.no_action:
-        shutil.move(current_file, new_file)
-    self.set_focus(self.table)
-    self.table.update_cell_at((self.current_row, 0), new_fn)
-    self.app.master[master_row].name = new_fn
-    self.app.changed.append((self.app.master[master_row].data["row"], "R", new_fn))
+        shutil.move(self.current_file, self.new_file)
+    self.parent.set_focus(self.parent.table)
+    self.parent.table.update_cell_at((self.parent.current_row, 0), os.path.basename(self.new_file))
+    self.app.master[self.master_row].name = os.path.basename(self.new_file)
+    self.app.changed.append((self.app.master[self.master_row].data["row"], "R", os.path.basename(self.new_file)))
 
 
 def remove_char(string, index):
-
     if index == 0:
         return string[1:]
     elif index == len(string) - 1:
