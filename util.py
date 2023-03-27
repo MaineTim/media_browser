@@ -1,13 +1,11 @@
 import os
 import platform
-import psutil
 import re
 import shutil
 import sys
 
 import ahocorasick_rs as ah
-
-from media_library import Entries
+import psutil
 
 
 def build_command(*args):

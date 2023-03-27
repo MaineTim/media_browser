@@ -1,22 +1,18 @@
-"""Main application class for the app."""
-
 import argparse
-from dataclasses import dataclass
 import os
 import pickle
 
-################################################################################
 # Textual imports.
 from textual.app import App
 
-################################################################################
 # Local imports.
 import util as ut
 from main_screen import Main
 from search_screen import Search
 
+# from dataclasses import dataclass
 
-################################################################################
+
 class Getargs:
     def __init__(self):
         args = self.get_args()
@@ -50,7 +46,6 @@ class Getargs:
         return args
 
 
-################################################################################
 class Masterfile:
     def __init__(self, mf_path):
         self.master = []
@@ -64,7 +59,6 @@ class Masterfile:
             self.master.append(item)
 
 
-##############################################################################
 class Browser(App[None]):
     """The main application class."""
 
@@ -93,7 +87,6 @@ class Browser(App[None]):
         self.push_screen("main")
 
 
-##############################################################################
 def run() -> None:
     """Run the application."""
     Browser().run()

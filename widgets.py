@@ -1,18 +1,13 @@
 import os
 import re
 
-################################################################################
 # Textual imports.
 from textual.containers import Grid
 from textual.screen import Screen
 from textual.widgets import Button, Input, Static
 
-################################################################################
 # Local imports.
 import util as ut
-
-
-################################################################################
 
 
 class RenameYesNoScreen(Screen):
@@ -36,7 +31,6 @@ class RenameYesNoScreen(Screen):
         self.app.uninstall_screen("rename")
 
 
-################################################################################
 class FilenameInput(Input):
     BINDINGS = [("escape", "input_cancel", "Cancel")]
 
@@ -65,7 +59,6 @@ class FilenameInput(Input):
         self.call_after_refresh(self.on_focus_move_cursor)
 
 
-################################################################################
 class SearchInput(Input):
     BINDINGS = [("escape", "input_cancel", "Cancel")]
 

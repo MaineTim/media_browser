@@ -1,24 +1,17 @@
-"""The main screen for Media_Browser"""
-
-################################################################################
-# Python imports.
 import platform
 import subprocess
 import time
 
-################################################################################
 # Textual imports.
 from textual.app import ComposeResult
 from textual.screen import Screen
 from textual.widgets import DataTable, Footer, Header
 
-################################################################################
 # Local imports.
 import util as ut
 from widgets import FilenameInput, SearchInput
 
 
-################################################################################
 class Main(Screen):
     """The main application screen."""
 

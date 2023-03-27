@@ -1,27 +1,17 @@
-"""Provides the main screen for the application."""
-
-################################################################################
-# Python imports.
-import argparse
-import os
-import pickle
 import platform
 import subprocess
 import time
 
-################################################################################
 # Textual imports.
 from textual.app import ComposeResult
 from textual.screen import Screen
 from textual.widgets import DataTable, Footer, Header
 
-################################################################################
 # Local imports.
 import util as ut
 from widgets import FilenameInput
 
 
-################################################################################
 class Search(Screen):
     """The main application screen."""
 
