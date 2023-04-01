@@ -40,7 +40,7 @@ class FilenameInput(Input):
         self.parent.set_focus(self.parent.table)
 
     def action_submit(self):
-        self.master_row = self.parent.table.get_row_at(self.parent.current_row)[7]
+        self.master_row = self.parent.table.get_row_at(self.parent.current_row)[-1]
         self.current_data = self.app.master[self.master_row]
         self.current_file = os.path.join(self.current_data.path, self.current_data.name)
         self.new_file = os.path.join(self.current_data.path, self.value)

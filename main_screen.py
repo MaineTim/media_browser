@@ -45,7 +45,7 @@ class Main(Screen):
             return
 
         self.p_vlc = subprocess.Popen(
-            ut.build_command("vlc", ut.get_path(self, self.table.get_row_at(self.current_hi_row)[7])),
+            ut.build_command("vlc", ut.get_path(self, self.table.get_row_at(self.current_hi_row)[-1])),
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
         )
@@ -96,6 +96,7 @@ class Main(Screen):
             ("Date", 10),
             ("Backups", 2),
             ("Orig Dur", 10),
+            ("Orig Min", 10),
             ("Curr Dur", 10),
             ("Index", 0),
         ]
@@ -105,6 +106,7 @@ class Main(Screen):
         for c in columns:
             self.column_keys.append(self.table.add_column(c[0], width=c[1]))
         for i, item in enumerate(self.app.master):
+            min, sec = divmod(float(item.original_duration), 60)
             self.app.master[i].data["row"] = self.table.add_row(
                 item.name,
                 item.original_size,
@@ -112,6 +114,7 @@ class Main(Screen):
                 item.date.strftime("%Y-%m-%d %H:%M:%S"),
                 item.backups,
                 time.strftime("%H:%M:%S", time.gmtime(float(item.original_duration))),
+                f"{round(min):02}:{round(sec):02}",
                 time.strftime("%H:%M:%S", time.gmtime(float(item.current_duration))),
                 item.data["index"],
             )

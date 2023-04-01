@@ -46,7 +46,7 @@ class Search(Screen):
             self.vlc_row = None
             return
         self.p_vlc = subprocess.Popen(
-            ut.build_command("vlc", ut.get_path(self, self.table.get_row_at(self.current_hi_row)[7])),
+            ut.build_command("vlc", ut.get_path(self, self.table.get_row_at(self.current_hi_row)[-1])),
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
         )
@@ -91,6 +91,7 @@ class Search(Screen):
             ("Date", 10),
             ("Backups", 2),
             ("Orig Dur", 10),
+            ("Orig Min", 10),
             ("Curr Dur", 10),
             ("Index", 0),
         ]
@@ -107,6 +108,7 @@ class Search(Screen):
                 item.date.strftime("%Y-%m-%d %H:%M:%S"),
                 item.backups,
                 time.strftime("%H:%M:%S", time.gmtime(float(item.original_duration))),
+                time.strftime("%M:%S", time.gmtime(float(item.original_duration))),
                 time.strftime("%H:%M:%S", time.gmtime(float(item.current_duration))),
                 item.data["index"],
             )
