@@ -125,7 +125,7 @@ class Search(Screen):
     def on_screen_resume(self):
         self.table.clear()
         for i, item in enumerate(self.app.entries):
-            min, sec = divmod(float(item.original_duration), 60)            
+            min, sec = divmod(float(item.original_duration), 60)
             self.table.add_row(
                 item.name,
                 item.original_size,
@@ -133,7 +133,7 @@ class Search(Screen):
                 item.date.strftime("%Y-%m-%d %H:%M:%S"),
                 item.backups,
                 time.strftime("%H:%M:%S", time.gmtime(float(item.original_duration))),
-                f"{round(min):02}:{round(sec):02}",                
+                f"{round(min):02}:{round(sec):02}",
                 time.strftime("%H:%M:%S", time.gmtime(float(item.current_duration))),
                 item.data["index"],
             )
