@@ -17,7 +17,7 @@ def build_command(*args):
 
 
 def delete_file(self):
-    master_row = self.table.get_row_at(self.current_hi_row)[7]
+    master_row = self.table.get_row_at(self.current_hi_row)[-1]
     current_data = self.app.master[master_row]
     if "deleted" not in current_data.data.keys():
         current_file = os.path.join(current_data.path, current_data.name)
