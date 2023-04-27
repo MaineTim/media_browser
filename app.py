@@ -87,6 +87,6 @@ class Browser(App[None]):
         self.push_screen("main")
 
 
-def run() -> None:
+if __name__ == "__main__":
     """Run the application."""
     Browser().run()
