@@ -32,6 +32,7 @@ class RenameYesNoScreen(Screen):
 
 
 class FilenameInput(Input):
+
     BINDINGS = [("escape", "input_cancel", "Cancel")]
 
     def action_input_cancel(self):
@@ -60,6 +61,7 @@ class FilenameInput(Input):
 
 
 class SearchInput(Input):
+
     BINDINGS = [("escape", "input_cancel", "Cancel")]
 
     def action_input_cancel(self):

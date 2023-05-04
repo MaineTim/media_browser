@@ -10,8 +10,6 @@ import util as ut
 from main_screen import Main
 from search_screen import Search
 
-# from dataclasses import dataclass
-
 
 class Getargs:
     def __init__(self):
@@ -60,22 +58,15 @@ class Masterfile:
 
 
 class Browser(App[None]):
-    """The main application class."""
 
     CSS_PATH = "browser.css"
-    """The name of the CSS file for the application."""
 
     TITLE = "Media Browser"
-    """The title of the application."""
-
-    #    SUB_TITLE = f"v{__version__}"
-    #    """The sub-title of the application."""
 
     SCREENS = {
         "main": Main,
         "search": Search,
     }
-    """The collection of application screens."""
 
     def on_mount(self) -> None:
         self.yes = False
@@ -88,5 +79,4 @@ class Browser(App[None]):
 
 
 if __name__ == "__main__":
-    """Run the application."""
     Browser().run()

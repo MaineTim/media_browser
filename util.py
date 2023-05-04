@@ -6,6 +6,7 @@ import sys
 
 import ahocorasick_rs as ah
 import psutil
+from textual.coordinate import Coordinate
 
 
 def build_command(*args):
@@ -26,11 +27,12 @@ def delete_file(self):
             self.log(f"{current_file} -> {new_path}")
         if not self.app.args.no_action:
             shutil.move(current_file, new_path)
-        self.app.master[master_row].name = "DELETED"
         self.app.master[master_row].data["deleted"] = True
-        self.app.changed.append((self.app.master[master_row].data["row"], "D", ""))
+        self.app.changed.append((self.app.master[master_row].data["main_row"], "D", ""))
     self.set_focus(self.table)
-    self.table.update_cell_at((self.current_hi_row, 0), "DELETED")
+    self.table.remove_row(self.current_hi_row_key)
+    coord = Coordinate(row=self.table.cursor_row, column=0)
+    self.current_hi_row_key = self.table.coordinate_to_cell_key(coord).row_key
 
 
 def exit_error(*error_data):
@@ -72,7 +74,7 @@ def rename_file(self):
     self.parent.set_focus(self.parent.table)
     self.parent.table.update_cell_at((self.parent.current_row, 0), os.path.basename(self.new_file))
     self.app.master[self.master_row].name = os.path.basename(self.new_file)
-    self.app.changed.append((self.app.master[self.master_row].data["row"], "R", os.path.basename(self.new_file)))
+    self.app.changed.append((self.app.master[self.master_row].data["main_row"], "R", os.path.basename(self.new_file)))
 
 
 def remove_char(string, index):
@@ -128,13 +130,14 @@ def search_strings(self, master, args, case_insensitive=True):
         ah_search = ah.AhoCorasick(targets)
     file_indexes = []
     for i, item in enumerate(master):
-        if case_insensitive:
-            results = ah_search.find_matches_as_indexes(item.name.upper())
-        else:
-            results = ah_search.find_matches_as_indexes(item.name)
-        if results != []:
-            results.sort(key=lambda x: x[0])
-            tokens = "".join([str(x) for x in (list(zip(*results))[0])])
-            if re.search(target_regex, tokens):
-                file_indexes.append(i)
+        if "deleted" not in item.data.keys():
+            if case_insensitive:
+                results = ah_search.find_matches_as_indexes(item.name.upper())
+            else:
+                results = ah_search.find_matches_as_indexes(item.name)
+            if results != []:
+                results.sort(key=lambda x: x[0])
+                tokens = "".join([str(x) for x in (list(zip(*results))[0])])
+                if re.search(target_regex, tokens):
+                    file_indexes.append(i)
     return [master[index] for index in file_indexes]

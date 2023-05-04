@@ -6,6 +6,7 @@ import time
 from textual.app import ComposeResult
 from textual.screen import Screen
 from textual.widgets import DataTable, Footer, Header
+from textual.widgets.data_table import RowDoesNotExist
 
 # Local imports.
 import util as ut
@@ -13,7 +14,6 @@ from widgets import FilenameInput, SearchInput
 
 
 class Main(Screen):
-    """The main application screen."""
 
     BINDINGS = [
         ("space", "run_viewer", "View"),
@@ -25,8 +25,11 @@ class Main(Screen):
     def __init__(self):
         super(Main, self).__init__()
 
+        self.is_search = False
         self.current_hi_row = 0
+        self.current_hi_row_key = None
         self.current_row = 0
+        self.current_row_key = None
         self.enter_pressed = False
         self.column_keys = []
         self.platform = platform.system()
@@ -76,17 +79,27 @@ class Main(Screen):
             self.enter_pressed = False
             self.set_focus(self.filename_input)
         self.current_row = event.cursor_row
+        self.current_row_key = event.row_key
         self.filename_input.action_delete_left_all()
         self.filename_input.insert_text_at_cursor(self.table.get_row_at(event.cursor_row)[0])
 
     def on_data_table_row_highlighted(self, event: DataTable.CellSelected):
         self.current_hi_row = event.cursor_row
+        self.current_hi_row_key = event.row_key
         self.filename_input.action_delete_left_all()
         self.filename_input.insert_text_at_cursor(self.table.get_row_at(event.cursor_row)[0])
 
     def on_key(self, event):
         if event.key == "enter":
             self.enter_pressed = True
+
+    def finish_mount(self):
+        self.sort_key = self.column_keys[0]
+        self.table.sort(self.sort_key)
+        self.current_hi_row_key = self.table.coordinate_to_cell_key((0, 0)).row_key
+        self.set_focus(self.table)
+        if self.app.args.translation_list:
+            self.log(self.app.args.translation_list.keys())
 
     def on_mount(self) -> None:
         columns = [
@@ -107,7 +120,7 @@ class Main(Screen):
             self.column_keys.append(self.table.add_column(c[0], width=c[1]))
         for i, item in enumerate(self.app.master):
             min, sec = divmod(float(item.original_duration), 60)
-            self.app.master[i].data["row"] = self.table.add_row(
+            self.app.master[i].data["main_row"] = self.table.add_row(
                 item.name,
                 item.original_size,
                 item.current_size,
@@ -118,21 +131,20 @@ class Main(Screen):
                 time.strftime("%H:%M:%S", time.gmtime(float(item.current_duration))),
                 item.data["index"],
             )
-        self.sort_key = self.column_keys[0]
-        self.table.sort(self.sort_key)
         self.filename_input = self.query_one(FilenameInput)
         self.filename_input.action_delete_left_all()
         self.filename_input.insert_text_at_cursor(self.table.get_row_at(0)[0])
-        self.set_focus(self.table)
-        if self.app.args.translation_list:
-            self.log(self.app.args.translation_list.keys())
+        self.table.call_after_refresh(self.finish_mount)
 
     def on_screen_resume(self):
         if self.app.changed != []:
             for row, change, data in self.app.changed:
                 match change:
                     case "D":
-                        self.table.update_cell(row, self.column_keys[0], "DELETED")
+                        try:
+                            self.table.remove_row(row)
+                        except RowDoesNotExist:
+                            ...
                     case "R":
                         self.table.update_cell(row, self.column_keys[0], data)
             self.app.changed = []

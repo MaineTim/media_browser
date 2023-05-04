@@ -13,7 +13,6 @@ from widgets import FilenameInput
 
 
 class Search(Screen):
-    """The main application screen."""
 
     BINDINGS = [
         ("escape", "return_to_main", "Main Screen"),
@@ -24,8 +23,11 @@ class Search(Screen):
 
     def __init__(self):
         super(Search, self).__init__()
+        self.is_search = True
         self.current_hi_row = 0
+        self.current_hi_row_key = None
         self.current_row = 0
+        self.current_row_key = None
         self.enter_pressed = False
         self.column_keys = []
         self.platform = platform.system()
@@ -71,17 +73,27 @@ class Search(Screen):
             self.enter_pressed = False
             self.set_focus(self.filename_input)
         self.current_row = event.cursor_row
+        self.current_row_key = event.row_key
         self.filename_input.action_delete_left_all()
         self.filename_input.insert_text_at_cursor(self.table.get_row_at(event.cursor_row)[0])
 
     def on_data_table_row_highlighted(self, event: DataTable.CellSelected):
         self.current_hi_row = event.cursor_row
+        self.current_hi_row_key = event.row_key
         self.filename_input.action_delete_left_all()
         self.filename_input.insert_text_at_cursor(self.table.get_row_at(event.cursor_row)[0])
 
     def on_key(self, event):
         if event.key == "enter":
             self.enter_pressed = True
+
+    def finish_mount(self):
+        self.sort_key = self.column_keys[6]
+        self.table.sort(self.sort_key)
+        self.current_hi_row_key = self.table.coordinate_to_cell_key((0, 0)).row_key
+        self.set_focus(self.table)
+        if self.app.args.translation_list:
+            self.log(self.app.args.translation_list.keys())
 
     def on_mount(self) -> None:
         columns = [
@@ -113,35 +125,28 @@ class Search(Screen):
                 time.strftime("%H:%M:%S", time.gmtime(float(item.current_duration))),
                 item.data["index"],
             )
-        self.sort_key = self.column_keys[6]
-        self.table.sort(self.sort_key)
         self.filename_input = self.query_one(FilenameInput)
         self.filename_input.action_delete_left_all()
         self.filename_input.insert_text_at_cursor(self.table.get_row_at(0)[0])
-        self.set_focus(self.table)
-        if self.app.args.translation_list:
-            self.log(self.app.args.translation_list.keys())
+        self.table.call_after_refresh(self.finish_mount)
 
     def on_screen_resume(self):
         self.table.clear()
         for i, item in enumerate(self.app.entries):
-            min, sec = divmod(float(item.original_duration), 60)
-            self.table.add_row(
-                item.name,
-                item.original_size,
-                item.current_size,
-                item.date.strftime("%Y-%m-%d %H:%M:%S"),
-                item.backups,
-                time.strftime("%H:%M:%S", time.gmtime(float(item.original_duration))),
-                f"{round(min):03}:{round(sec):02}",
-                time.strftime("%H:%M:%S", time.gmtime(float(item.current_duration))),
-                item.data["index"],
-            )
-        self.sort_key = self.column_keys[6]
-        self.table.sort(self.sort_key)
+            if "deleted" not in item.data.keys():
+                min, sec = divmod(float(item.original_duration), 60)
+                self.table.add_row(
+                    item.name,
+                    item.original_size,
+                    item.current_size,
+                    item.date.strftime("%Y-%m-%d %H:%M:%S"),
+                    item.backups,
+                    time.strftime("%H:%M:%S", time.gmtime(float(item.original_duration))),
+                    f"{round(min):03}:{round(sec):02}",
+                    time.strftime("%H:%M:%S", time.gmtime(float(item.current_duration))),
+                    item.data["index"],
+                )
         self.filename_input = self.query_one(FilenameInput)
         self.filename_input.action_delete_left_all()
         self.filename_input.insert_text_at_cursor(self.table.get_row_at(0)[0])
-        self.set_focus(self.table)
-        if self.app.args.translation_list:
-            self.log(self.app.args.translation_list.keys())
+        self.table.call_after_refresh(self.finish_mount)
