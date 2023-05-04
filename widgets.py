@@ -24,7 +24,8 @@ class RenameYesNoScreen(Screen):
         )
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
-        self.log(event.button.id)
+        if self.apps.args.verbose:
+            self.log(event.button.id)
         if event.button.id == "Yes":
             ut.rename_file(self.fi)
         self.app.pop_screen()

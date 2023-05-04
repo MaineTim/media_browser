@@ -4,6 +4,7 @@ import time
 
 # Textual imports.
 from textual.app import ComposeResult
+from textual.coordinate import Coordinate
 from textual.screen import Screen
 from textual.widgets import DataTable, Footer, Header
 
@@ -67,6 +68,8 @@ class Search(Screen):
             self.sort_reverse = False
         self.table.sort(event.column_key, self.column_keys[0], reverse=self.sort_reverse)
         self.sort_key = event.column_key
+        coord = Coordinate(row=self.table.cursor_row, column=0)
+        self.current_hi_row_key = self.table.coordinate_to_cell_key(coord).row_key
 
     def on_data_table_row_selected(self, event: DataTable.CellSelected):
         if self.current_row == event.cursor_row or self.enter_pressed:
@@ -92,7 +95,7 @@ class Search(Screen):
         self.table.sort(self.sort_key)
         self.current_hi_row_key = self.table.coordinate_to_cell_key((0, 0)).row_key
         self.set_focus(self.table)
-        if self.app.args.translation_list:
+        if self.app.args.translation_list and self.app.args.verbose:
             self.log(self.app.args.translation_list.keys())
 
     def on_mount(self) -> None:
@@ -107,7 +110,8 @@ class Search(Screen):
             ("Curr Dur", 10),
             ("Index", 0),
         ]
-        self.log(f"{len(self.app.entries)} records found.")
+        if self.app.args.verbose:
+            self.log(f"{len(self.app.entries)} records found.")
         self.table = self.query_one(DataTable)
         self.table.cursor_type = "row"
         for c in columns:

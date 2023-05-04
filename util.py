@@ -7,6 +7,7 @@ import sys
 import ahocorasick_rs as ah
 import psutil
 from textual.coordinate import Coordinate
+from textual.widgets.data_table import CellDoesNotExist, RowDoesNotExist
 
 
 def build_command(*args):
@@ -18,7 +19,10 @@ def build_command(*args):
 
 
 def delete_file(self):
-    master_row = self.table.get_row_at(self.current_hi_row)[-1]
+    try:
+        master_row = self.table.get_row_at(self.current_hi_row)[-1]
+    except RowDoesNotExist:
+        return
     current_data = self.app.master[master_row]
     if "deleted" not in current_data.data.keys():
         current_file = os.path.join(current_data.path, current_data.name)
@@ -32,7 +36,10 @@ def delete_file(self):
     self.set_focus(self.table)
     self.table.remove_row(self.current_hi_row_key)
     coord = Coordinate(row=self.table.cursor_row, column=0)
-    self.current_hi_row_key = self.table.coordinate_to_cell_key(coord).row_key
+    try:
+        self.current_hi_row_key = self.table.coordinate_to_cell_key(coord).row_key
+    except CellDoesNotExist:
+        ...
 
 
 def exit_error(*error_data):
