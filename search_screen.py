@@ -72,7 +72,7 @@ class Search(Screen):
         self.current_hi_row_key = self.table.coordinate_to_cell_key(coord).row_key
 
     def on_data_table_row_selected(self, event: DataTable.CellSelected):
-        if self.current_row == event.cursor_row or self.enter_pressed:
+        if self.enter_pressed:
             self.enter_pressed = False
             self.set_focus(self.filename_input)
         self.current_row = event.cursor_row
