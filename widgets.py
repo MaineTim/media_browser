@@ -24,7 +24,7 @@ class RenameYesNoScreen(Screen):
         )
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
-        if self.apps.args.verbose:
+        if self.app.args.verbose:
             self.log(event.button.id)
         if event.button.id == "Yes":
             ut.rename_file(self.fi)
