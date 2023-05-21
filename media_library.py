@@ -1,4 +1,4 @@
-# Media Library Version 23-03-15-a
+# Media Library Version 23-05-21-a
 
 import bisect
 import csv
@@ -8,6 +8,7 @@ import operator
 import os
 import pickle
 from dataclasses import dataclass, field
+from typing import Tuple
 
 import ffmpeg
 
@@ -50,7 +51,7 @@ class Entries:
     data: dict = field(default_factory=dict)
 
 
-def checksum(filename, hash_factory=hashlib.md5, chunk_num_blocks=128):
+def checksum(filename: str, hash_factory=hashlib.md5, chunk_num_blocks=128):
     h = hash_factory()
     with open(filename, "rb") as f:
         for chunk in iter(lambda: f.read(chunk_num_blocks * h.block_size), b""):
@@ -58,7 +59,7 @@ def checksum(filename, hash_factory=hashlib.md5, chunk_num_blocks=128):
     return h.hexdigest()
 
 
-def file_duration(filename):
+def file_duration(filename: str) -> float:
     duration = 0
     try:
         info = ffmpeg.probe(filename)
@@ -68,10 +69,10 @@ def file_duration(filename):
         print(e.stderr)
         print()
         return -1
-    return duration
+    return float(duration)
 
 
-def check_inode(database, inode, start=0):
+def check_inode(database: list[Entries], inode: int, start=0) -> Tuple[bool, int]:
     for i, item in enumerate(database):
         if item.ino == inode:
             return (True, i)
@@ -79,7 +80,7 @@ def check_inode(database, inode, start=0):
 
 
 # Return True, result if size matches.
-def check_size(database, size, start=0):
+def check_size(database: list[Entries], size: int, start=0) -> Tuple[bool, int]:
     entry_size = operator.attrgetter("current_size")
 
     if start > 0:
@@ -93,7 +94,7 @@ def check_size(database, size, start=0):
 
 
 # Return True, result if size and name match.
-def check_db(database, item):
+def check_db(database: list[Entries], item: Entries) -> Tuple[bool, int]:
     start = 0
     while True:
         found, result = check_size(database, item.current_size, start)
@@ -106,13 +107,13 @@ def check_db(database, item):
             return False, 0
 
 
-def split_backup_path(path):
+def split_backup_path(path: str):
     split_point = path.find("[")
     end_point = path.find("]")
     return os.path.normpath(path[0:split_point]), int(path[split_point + 1 : end_point])
 
 
-def create_file_entry(path, update_duration = False):
+def create_file_entry(path: str, update_duration: bool = False) -> Entries:
     stat_entry = os.stat(path)
     if update_duration:
         duration = file_duration(path)
@@ -136,9 +137,9 @@ def create_file_entry(path, update_duration = False):
     return entry
 
 
-def create_file_list(path, update_duration = False):
+def create_file_list(path: str, update_duration: bool = False) -> list[Entries]:
     entry_size = operator.attrgetter("current_size")
-    file_entries = []
+    file_entries: list[Entries] = []
     files = [
         f
         for f in os.listdir(path)
@@ -150,7 +151,7 @@ def create_file_list(path, update_duration = False):
     return file_entries
 
 
-def read_master_file(master_input_path):
+def read_master_file(master_input_path: str) -> list:
     if os.path.exists(master_input_path):
         with open(master_input_path, "rb") as f:
             master = pickle.load(f)
@@ -190,15 +191,15 @@ def write_entries_file(master: list, master_output_path: str, write_csv: bool):
                     item.UID,
                     item.path,
                     item.name,
-                    item.original_size,
-                    item.current_size,
+                    int(item.original_size),
+                    int(item.current_size),
                     item.date,
-                    item.backups,
+                    int(item.backups),
                     item.paths,
-                    item.original_duration,
-                    item.current_duration,
-                    item.ino,
-                    item.nlink,
+                    float(item.original_duration),
+                    float(item.current_duration),
+                    int(item.ino),
+                    int(item.nlink),
                     item.csum,
                     item.data,
                 ]
