@@ -112,8 +112,12 @@ def split_backup_path(path):
     return os.path.normpath(path[0:split_point]), int(path[split_point + 1 : end_point])
 
 
-def create_file_entry(path):
+def create_file_entry(path, update_duration = False):
     stat_entry = os.stat(path)
+    if update_duration:
+        duration = file_duration(path)
+    else:
+        duration = 0.0
     entry = Entries(
         path=os.path.dirname(path),
         name=os.path.basename(path),
@@ -122,8 +126,8 @@ def create_file_entry(path):
         date=datetime.datetime.fromtimestamp(stat_entry.st_mtime, tz=datetime.timezone.utc),
         backups=0,
         paths=[],
-        original_duration=0,
-        current_duration=0,
+        original_duration=duration,
+        current_duration=duration,
         ino=stat_entry.st_ino,
         nlink=stat_entry.st_nlink,
         csum="",
@@ -132,7 +136,7 @@ def create_file_entry(path):
     return entry
 
 
-def create_file_list(path):
+def create_file_list(path, update_duration = False):
     entry_size = operator.attrgetter("current_size")
     file_entries = []
     files = [
@@ -141,7 +145,7 @@ def create_file_list(path):
         if os.path.isfile(os.path.join(path, f)) and os.path.splitext(f)[1] in [".mp4", ".mp4~"]
     ]
     for f in files:
-        entry = create_file_entry(os.path.join(path, f))
+        entry = create_file_entry(os.path.join(path, f), update_duration)
         bisect.insort(file_entries, entry, key=entry_size)
     return file_entries
 
