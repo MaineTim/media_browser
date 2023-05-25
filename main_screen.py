@@ -19,6 +19,7 @@ class Main(Screen):
     BINDINGS = [
         ("space", "run_viewer", "View"),
         ("d", "delete_file", "Del"),
+        ("i", "file_info", "Info"),
         ("q", "quit", "Quit"),
         ("/", "search", "Search"),
     ]
@@ -41,13 +42,15 @@ class Main(Screen):
     def action_delete_file(self):
         ut.delete_file(self)
 
+    def action_file_info(self):
+        self.app.push_screen("info")
+
     def action_run_viewer(self):
         if self.p_vlc:
             ut.kill_vlc(self)
         if self.vlc_row == self.current_hi_row:
             self.vlc_row = None
             return
-
         self.p_vlc = subprocess.Popen(
             ut.build_command("vlc", ut.get_path(self, self.table.get_row_at(self.current_hi_row)[-1])),
             stdout=subprocess.DEVNULL,

@@ -8,6 +8,7 @@ from textual.app import App
 # Local imports.
 import media_library as ml
 import util as ut
+from info_screen import Info
 from main_screen import Main
 from search_screen import Search
 
@@ -75,6 +76,7 @@ class Browser(App[None]):
     SCREENS = {
         "main": Main,
         "search": Search,
+        "info": Info,
     }
 
     def on_mount(self) -> None:
