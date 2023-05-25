@@ -1,4 +1,4 @@
-# Media Library Version 23-05-21-a
+# Media Library Version 23-05-25-a
 
 import bisect
 import csv
@@ -6,9 +6,10 @@ import datetime
 import hashlib
 import operator
 import os
+import pathlib
 import pickle
 from dataclasses import dataclass, field
-from typing import Tuple
+from typing import Any, Callable, Tuple
 
 import ffmpeg
 
@@ -42,16 +43,16 @@ class Entries:
     current_size: int = 0
     date: datetime.datetime = datetime.datetime.now()
     backups: int = 0
-    paths: list = field(default_factory=list)
+    paths: list[str] = field(default_factory=list)
     original_duration: float = 0.0
     current_duration: float = 0.0
     ino: int = 0
     nlink: int = 0
     csum: str = ""
-    data: dict = field(default_factory=dict)
+    data: dict[Any, Any] = field(default_factory=dict)
 
 
-def checksum(filename: str, hash_factory=hashlib.md5, chunk_num_blocks=128):
+def checksum(filename: str, hash_factory: Callable[..., Any] = hashlib.md5, chunk_num_blocks: int = 128) -> Any:
     h = hash_factory()
     with open(filename, "rb") as f:
         for chunk in iter(lambda: f.read(chunk_num_blocks * h.block_size), b""):
@@ -72,15 +73,22 @@ def file_duration(filename: str) -> float:
     return float(duration)
 
 
-def check_inode(database: list[Entries], inode: int, start=0) -> Tuple[bool, int]:
+def check_inode(database: list[Entries], inode: int) -> Tuple[bool, int]:
     for i, item in enumerate(database):
         if item.ino == inode:
             return (True, i)
     return (False, 0)
 
 
+def check_inode_in_path(database: list[Entries], path: str, inode: int) -> Tuple[bool, int]:
+    for i, item in enumerate(database):
+        if (item.ino == inode) and (item.path == path):
+            return (True, i)
+    return (False, 0)
+
+
 # Return True, result if size matches.
-def check_size(database: list[Entries], size: int, start=0) -> Tuple[bool, int]:
+def check_size(database: list[Entries], size: int, start: int = 0) -> Tuple[bool, int]:
     entry_size = operator.attrgetter("current_size")
 
     if start > 0:
@@ -107,7 +115,12 @@ def check_db(database: list[Entries], item: Entries) -> Tuple[bool, int]:
             return False, 0
 
 
-def split_backup_path(path: str):
+def make_backup_path_entry(path: str, inode: int) -> str:
+    processed_path = pathlib.Path(path).expanduser().resolve()
+    return processed_path.joinpath(f"[{inode}]").as_posix()
+
+
+def split_backup_path(path: str) -> Tuple[str, int]:
     split_point = path.find("[")
     end_point = path.find("]")
     return os.path.normpath(path[0:split_point]), int(path[split_point + 1 : end_point])
@@ -151,17 +164,16 @@ def create_file_list(path: str, update_duration: bool = False) -> list[Entries]:
     return file_entries
 
 
-def read_master_file(master_input_path: str) -> list:
+def read_master_file(master_input_path: str) -> list[Entries]:
+    master: list[Entries] = []
     if os.path.exists(master_input_path):
         with open(master_input_path, "rb") as f:
             master = pickle.load(f)
         print(f"{len(master)} records found.")
-        return master
-    else:
-        return []
+    return master
 
 
-def write_entries_file(master: list, master_output_path: str, write_csv: bool):
+def write_entries_file(master: list[Entries], master_output_path: str, write_csv: bool) -> None:
     with open(master_output_path, "wb") as f:
         pickle.dump(master, f)
 
