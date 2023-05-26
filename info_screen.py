@@ -1,15 +1,9 @@
 import platform
-import subprocess
-import time
 
 # Textual imports.
 from textual.app import ComposeResult
-from textual.coordinate import Coordinate
 from textual.screen import Screen
-from textual.widgets import ListView, Footer, Header
-
-# Local imports.
-import util as ut
+from textual.widgets import Footer, Header, Label, ListItem, ListView
 
 
 class Info(Screen):
@@ -38,13 +32,32 @@ class Info(Screen):
             self.enter_pressed = True
 
     def finish_mount(self):
-        pass
+        self.listview.append(ListItem(Label("File Info", classes="infoitem")))
+        self.listview.append(ListItem(Label(f"UID: {self.app.current_data.UID}", classes="infoitem")))
+        self.listview.append(ListItem(Label(f"Path: {self.app.current_data.path}", classes="infoitem")))
+        self.listview.append(ListItem(Label(f"Name: {self.app.current_data.name}", classes="infoitem")))
+        self.listview.append(
+            ListItem(Label(f"Original size:: {self.app.current_data.original_size}", classes="infoitem"))
+        )
+        self.listview.append(ListItem(Label(f"Current size: {self.app.current_data.current_size}", classes="infoitem")))
+        self.listview.append(ListItem(Label(f"Date: {self.app.current_data.date}", classes="infoitem")))
+        self.listview.append(ListItem(Label(f"Backups: {self.app.current_data.backups}", classes="infoitem")))
+        self.listview.append(ListItem(Label(f"Backup paths: {self.app.current_data.paths}", classes="infoitem")))
+        self.listview.append(
+            ListItem(Label(f"Original Duration: {self.app.current_data.original_duration}", classes="infoitem"))
+        )
+        self.listview.append(
+            ListItem(Label(f"Current Duration: {self.app.current_data.current_duration}", classes="infoitem"))
+        )
+        self.listview.append(ListItem(Label(f"Inode: {self.app.current_data.ino}", classes="infoitem")))
+        self.listview.append(ListItem(Label(f"Number of links: {self.app.current_data.nlink}", classes="infoitem")))
+        self.listview.append(ListItem(Label(f"Checksum: {self.app.current_data.csum}", classes="infoitem")))
+        self.listview.append(ListItem(Label(f"Data: {self.app.current_data.data}", classes="infoitem")))
 
     def on_mount(self) -> None:
-#        self.table.call_after_refresh(self.finish_mount)
-        pass
+        self.listview = self.query_one(ListView)
+        self.finish_mount()
 
     def on_screen_resume(self):
-#        self.table.clear()
-#        self.table.call_after_refresh(self.finish_mount)
-        pass
+        self.listview.clear()
+        self.finish_mount()

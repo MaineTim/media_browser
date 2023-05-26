@@ -16,6 +16,12 @@
     height: 100%;
 }
 
+.infoitem {
+    height: 2;
+    padding-left: 5;
+    content-align: center middle;
+}
+
 Button {
     width: 100%;
 }

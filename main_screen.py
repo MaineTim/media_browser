@@ -43,6 +43,11 @@ class Main(Screen):
         ut.delete_file(self)
 
     def action_file_info(self):
+        try:
+            master_row = self.table.get_row_at(self.current_hi_row)[-1]
+        except RowDoesNotExist:
+            return
+        self.app.current_data = self.app.master[master_row]
         self.app.push_screen("info")
 
     def action_run_viewer(self):

@@ -49,7 +49,7 @@ class Getargs:
 
 
 class Masterfile:
-    def __init__(self, mf_path, filebrowser = False):
+    def __init__(self, mf_path, filebrowser=False):
         self.master = []
         if filebrowser:
             if os.path.exists(mf_path):
@@ -59,7 +59,7 @@ class Masterfile:
         else:
             if os.path.exists(mf_path):
                 with open(mf_path, "rb") as f:
-                  master = pickle.load(f)
+                    master = pickle.load(f)
             else:
                 ut.exit_error(f"Database file not found: {mf_path}")
         for i, item in enumerate(master):
@@ -83,6 +83,7 @@ class Browser(App[None]):
         self.yes = False
         self.entries = []
         self.changed = []
+        self.current_data = None
         self.args = Getargs()
         master = Masterfile(self.app.args.master_input_path, self.args.file_browser)
         self.master = master.master
