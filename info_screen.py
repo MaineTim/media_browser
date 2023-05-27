@@ -4,12 +4,13 @@ import platform
 from textual.app import ComposeResult
 from textual.screen import Screen
 from textual.widgets import Footer, Header, Label, ListItem, ListView
+from textual.binding import Binding
 
 
 class Info(Screen):
 
     BINDINGS = [
-        ("escape", "return_to_main", "Main Screen"),
+        (Binding("escape, space", "return_to_main", "Main Screen", key_display="ESC/SPACE")),
         ("q", "quit", "Quit"),
     ]
 
