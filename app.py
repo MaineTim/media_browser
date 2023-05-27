@@ -83,6 +83,7 @@ class Browser(App[None]):
         self.yes = False
         self.entries = []
         self.changed = []
+        self.new_table = False
         self.current_data = None
         self.args = Getargs()
         master = Masterfile(self.app.args.master_input_path, self.args.file_browser)

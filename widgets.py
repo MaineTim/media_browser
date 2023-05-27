@@ -76,5 +76,6 @@ class SearchInput(Input):
         self.targets = re.findall(r'(?:[^\s,"]|"(?:\\.|[^"])*")+', self.value)
         self.app.entries = ut.search_strings(self, self.app.master, self.targets)
         if self.app.entries != []:
+            self.app.new_table = True
             self.app.push_screen("search")
         self.action_input_cancel()
