@@ -38,7 +38,7 @@ class Info(Screen):
         self.listview.append(ListItem(Label(f"Path: {self.app.current_data.path}", classes="infoitem")))
         self.listview.append(ListItem(Label(f"Name: {self.app.current_data.name}", classes="infoitem")))
         self.listview.append(
-            ListItem(Label(f"Original size:: {self.app.current_data.original_size}", classes="infoitem"))
+            ListItem(Label(f"Original size: {self.app.current_data.original_size}", classes="infoitem"))
         )
         self.listview.append(ListItem(Label(f"Current size: {self.app.current_data.current_size}", classes="infoitem")))
         self.listview.append(ListItem(Label(f"Date: {self.app.current_data.date}", classes="infoitem")))
