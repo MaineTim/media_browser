@@ -4,7 +4,7 @@ import re
 # Textual imports.
 from textual.containers import Grid
 from textual.screen import Screen
-from textual.widgets import Button, Input, Static
+from textual.widgets import Button, DataTable, Input, Static
 
 # Local imports.
 import util as ut
@@ -79,3 +79,13 @@ class SearchInput(Input):
             self.app.new_table = True
             self.app.push_screen("search")
         self.action_input_cancel()
+
+
+class BrowserDataTable(DataTable):
+    def __init__(self, classes="datatable"):
+        super(BrowserDataTable, self).__init__(classes="datatable")
+        self.enter_pressed = False
+
+    def on_key(self, event):
+        if event.key == "enter":
+            self.enter_pressed = True

@@ -11,7 +11,7 @@ from textual.widgets.data_table import RowDoesNotExist
 
 # Local imports.
 import util as ut
-from widgets import FilenameInput, SearchInput
+from widgets import BrowserDataTable, FilenameInput, SearchInput
 
 
 class Main(Screen):
@@ -32,7 +32,6 @@ class Main(Screen):
         self.current_hi_row_key = None
         self.current_row = 0
         self.current_row_key = None
-        self.enter_pressed = False
         self.column_keys = []
         self.platform = platform.system()
         self.p_vlc = None
@@ -71,7 +70,7 @@ class Main(Screen):
 
     def compose(self) -> ComposeResult:
         yield Header()
-        yield DataTable(classes="datatable")
+        yield BrowserDataTable(classes="datatable")
         yield FilenameInput()
         yield Footer()
 
@@ -86,8 +85,8 @@ class Main(Screen):
         self.current_hi_row_key = self.table.coordinate_to_cell_key(coord).row_key
 
     def on_data_table_row_selected(self, event: DataTable.CellSelected):
-        if self.enter_pressed:
-            self.enter_pressed = False
+        if self.table.enter_pressed:
+            self.table.enter_pressed = False
             self.set_focus(self.filename_input)
         self.current_row = event.cursor_row
         self.current_row_key = event.row_key
@@ -99,10 +98,6 @@ class Main(Screen):
         self.current_hi_row_key = event.row_key
         self.filename_input.action_delete_left_all()
         self.filename_input.insert_text_at_cursor(self.table.get_row_at(event.cursor_row)[0])
-
-    def on_key(self, event):
-        if event.key == "enter":
-            self.enter_pressed = True
 
     def finish_mount(self):
         self.sort_key = self.column_keys[0]
@@ -126,7 +121,7 @@ class Main(Screen):
         ]
         if self.app.args.verbose:
             self.log(f"{len(self.app.master)} records found.")
-        self.table = self.query_one(DataTable)
+        self.table = self.query_one(BrowserDataTable)
         self.table.cursor_type = "row"
         for c in columns:
             self.column_keys.append(self.table.add_column(c[0], width=c[1]))

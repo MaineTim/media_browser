@@ -2,9 +2,9 @@ import platform
 
 # Textual imports.
 from textual.app import ComposeResult
+from textual.binding import Binding
 from textual.screen import Screen
 from textual.widgets import Footer, Header, Label, ListItem, ListView
-from textual.binding import Binding
 
 
 class Info(Screen):
@@ -27,10 +27,6 @@ class Info(Screen):
         yield Header()
         yield ListView(classes="listview")
         yield Footer()
-
-    def on_key(self, event):
-        if event.key == "enter":
-            self.enter_pressed = True
 
     def finish_mount(self):
         self.listview.append(ListItem(Label("File Info", classes="infoitem")))
