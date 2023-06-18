@@ -70,7 +70,7 @@ class Search(Screen):
         yield FilenameInput()
         yield Footer()
 
-    def on_browser_data_table_header_selected(self, event):
+    def on_data_table_header_selected(self, event):
         if self.sort_key == event.column_key:
             self.sort_reverse = False if self.sort_reverse else True
         else:
@@ -80,7 +80,7 @@ class Search(Screen):
         coord = Coordinate(row=self.table.cursor_row, column=0)
         self.current_hi_row_key = self.table.coordinate_to_cell_key(coord).row_key
 
-    def on_browser_data_table_row_selected(self, event: DataTable.CellSelected):
+    def on_data_table_row_selected(self, event: DataTable.CellSelected):
         if self.table.enter_pressed:
             self.table.enter_pressed = False
             self.set_focus(self.filename_input)
@@ -89,7 +89,7 @@ class Search(Screen):
         self.filename_input.action_delete_left_all()
         self.filename_input.insert_text_at_cursor(self.table.get_row_at(event.cursor_row)[0])
 
-    def on_browser_data_table_row_highlighted(self, event: DataTable.CellSelected):
+    def on_data_table_row_highlighted(self, event: DataTable.CellSelected):
         self.current_hi_row = event.cursor_row
         self.current_hi_row_key = event.row_key
         self.filename_input.action_delete_left_all()
