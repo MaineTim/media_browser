@@ -82,8 +82,8 @@ class SearchInput(Input):
 
 
 class BrowserDataTable(DataTable):
-    def __init__(self, classes="datatable"):
-        super(BrowserDataTable, self).__init__(classes="datatable")
+    def __init__(self, *args, **kwargs):
+        super(BrowserDataTable, self).__init__(*args, **kwargs)
         self.enter_pressed = False
 
     def on_key(self, event):
