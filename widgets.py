@@ -74,7 +74,10 @@ class SearchInput(Input):
 
     def action_submit(self):
         self.targets = re.findall(r'(?:[^\s,"]|"(?:\\.|[^"])*")+', self.value)
-        self.app.entries = ut.search_strings(self, self.app.master, self.targets)
+        if self.targets[0][0] == "\\":
+            self.app.search_duration, self.app.entries = ut.search_duration(self, self.app.master, self.targets)
+        else:
+            self.app.entries = ut.search_strings(self, self.app.master, self.targets)
         if self.app.entries != []:
             self.app.new_table = True
             self.app.push_screen("search")

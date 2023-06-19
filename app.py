@@ -85,6 +85,7 @@ class Browser(App[None]):
         self.changed = []
         self.new_table = False
         self.current_data = None
+        self.search_duration = 0.0
         self.args = Getargs()
         master = Masterfile(self.app.args.master_input_path, self.args.file_browser)
         self.master = master.master

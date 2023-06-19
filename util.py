@@ -3,6 +3,7 @@ import platform
 import re
 import shutil
 import sys
+import time
 
 import ahocorasick_rs as ah
 import psutil
@@ -148,3 +149,20 @@ def search_strings(self, master, args, case_insensitive=True):
                 if re.search(target_regex, tokens):
                     file_indexes.append(i)
     return [master[index] for index in file_indexes]
+
+
+def search_duration(self, master, args):
+    duration_target = args[0][1:].split(".")
+    try:
+        duration_seconds = float(int(duration_target[0]) * 60 + int(duration_target[1]))
+    except (ValueError, IndexError):
+        return []
+    self.log(f"Time we calculated: {duration_target} : {duration_seconds}")
+    return (
+        duration_seconds,
+        [
+            master[index]
+            for index, item in enumerate(master)
+            if (item.current_duration - 300.0) < duration_seconds < (item.current_duration + 300)
+        ],
+    )

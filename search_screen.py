@@ -1,3 +1,4 @@
+import bisect
 import platform
 import subprocess
 import time
@@ -96,27 +97,38 @@ class Search(Screen):
         self.filename_input.insert_text_at_cursor(self.table.get_row_at(event.cursor_row)[0])
 
     def finish_mount(self):
+        def bisect_key(row):
+            data = self.table.get_row(row)
+            return self.app.master[data[8]].original_duration
+
         self.sort_key = self.column_keys[6]
         self.table.sort(self.sort_key)
+        self.table_rows.sort(key=bisect_key)
         self.current_hi_row_key = self.table.coordinate_to_cell_key((0, 0)).row_key
         self.set_focus(self.table)
+        if self.app.search_duration:
+            row = bisect.bisect_left(self.table_rows, self.app.search_duration, key=bisect_key)
+            self.table.move_cursor(row=row)
         if self.app.args.translation_list and self.app.args.verbose:
             self.log(self.app.args.translation_list.keys())
 
     def build_table(self):
+        self.table_rows = []
         for i, item in enumerate(self.app.entries):
             if "deleted" not in item.data.keys():
                 min, sec = divmod(float(item.original_duration), 60)
-                self.table.add_row(
-                    item.name,
-                    item.original_size,
-                    item.current_size,
-                    item.date.strftime("%Y-%m-%d %H:%M:%S"),
-                    item.backups,
-                    time.strftime("%H:%M:%S", time.gmtime(float(item.original_duration))),
-                    f"{round(min):03}:{round(sec):02}",
-                    time.strftime("%H:%M:%S", time.gmtime(float(item.current_duration))),
-                    item.data["index"],
+                self.table_rows.append(
+                    self.table.add_row(
+                        item.name,
+                        item.original_size,
+                        item.current_size,
+                        item.date.strftime("%Y-%m-%d %H:%M:%S"),
+                        item.backups,
+                        time.strftime("%H:%M:%S", time.gmtime(float(item.original_duration))),
+                        f"{round(min):03}:{round(sec):02}",
+                        time.strftime("%H:%M:%S", time.gmtime(float(item.current_duration))),
+                        item.data["index"],
+                    )
                 )
         self.filename_input = self.query_one(FilenameInput)
         self.filename_input.action_delete_left_all()
