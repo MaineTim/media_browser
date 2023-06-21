@@ -153,8 +153,10 @@ def search_strings(self, master, args, case_insensitive=True):
 
 def search_duration(self, master, args):
     duration_target = args[0][1:].split(".")
+    duration_seconds = 0.0
     try:
-        duration_seconds = float(int(duration_target[0]) * 60 + int(duration_target[1]))
+        for i, m in enumerate(reversed(duration_target)):
+            duration_seconds += float(m) * (60.0 ** i)
     except (ValueError, IndexError):
         return []
     self.log(f"Time we calculated: {duration_target} : {duration_seconds}")
