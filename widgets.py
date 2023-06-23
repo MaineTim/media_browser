@@ -92,3 +92,7 @@ class BrowserDataTable(DataTable):
     def on_key(self, event):
         if event.key == "enter":
             self.enter_pressed = True
+
+    def cursor_row_key(self):
+        row_key, _ = self.coordinate_to_cell_key(self.cursor_coordinate)
+        return row_key
