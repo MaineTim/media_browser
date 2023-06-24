@@ -15,7 +15,7 @@ class Info(Screen):
     ]
 
     def __init__(self):
-        super(Info, self).__init__()
+        super().__init__()
         self.is_info = True
         self.enter_pressed = False
         self.platform = platform.system()

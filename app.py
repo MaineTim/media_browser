@@ -62,6 +62,7 @@ class Masterfile:
                     master = pickle.load(f)
             else:
                 ut.exit_error(f"Database file not found: {mf_path}")
+        master.sort(key=lambda x: x.name)
         for i, item in enumerate(master):
             item.data["index"] = i
             self.master.append(item)
@@ -83,6 +84,8 @@ class Browser(App[None]):
         self.yes = False
         self.entries = []
         self.changed = []
+        self.main_rows = {}
+        self.search_rows = {}
         self.new_table = False
         self.current_data = None
         self.search_duration = 0.0

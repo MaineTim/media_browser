@@ -3,12 +3,15 @@ import platform
 import re
 import shutil
 import sys
-import time
 
 import ahocorasick_rs as ah
 import psutil
+
+# Textual imports
 from textual.coordinate import Coordinate
 from textual.widgets.data_table import CellDoesNotExist, RowDoesNotExist
+
+# Local imports
 
 
 def build_command(*args):
@@ -21,10 +24,10 @@ def build_command(*args):
 
 def delete_file(self):
     try:
-        master_row = self.table.get_row_at(self.current_hi_row)[-1]
+        master_index = self.table.row_num_to_master_index(self.current_hi_row)
     except RowDoesNotExist:
         return
-    current_data = self.app.master[master_row]
+    current_data = self.app.master[master_index]
     if "deleted" not in current_data.data.keys():
         current_file = os.path.join(current_data.path, current_data.name)
         new_path = os.path.join(os.path.split(current_data.path)[0], "DelLinks/")
@@ -32,8 +35,8 @@ def delete_file(self):
             self.log(f"{current_file} -> {new_path}")
         if not self.app.args.no_action:
             shutil.move(current_file, new_path)
-        self.app.master[master_row].data["deleted"] = True
-        self.app.changed.append((self.app.master[master_row].data["main_row"], "D", ""))
+        self.app.master[master_index].data["deleted"] = True
+        self.app.changed.append((master_index, "D", ""))
     self.set_focus(self.table)
     self.table.remove_row(self.current_hi_row_key)
     coord = Coordinate(row=self.table.cursor_row, column=0)
@@ -82,7 +85,7 @@ def rename_file(self):
     self.parent.set_focus(self.parent.table)
     self.parent.table.update_cell_at((self.parent.current_row, 0), os.path.basename(self.new_file))
     self.app.master[self.master_row].name = os.path.basename(self.new_file)
-    self.app.changed.append((self.app.master[self.master_row].data["main_row"], "R", os.path.basename(self.new_file)))
+    self.app.changed.append((self.master_row, "R", os.path.basename(self.new_file)))
 
 
 def remove_char(string, index):
@@ -156,7 +159,7 @@ def search_duration(self, master, args):
     duration_seconds = 0.0
     try:
         for i, m in enumerate(reversed(duration_target)):
-            duration_seconds += float(m) * (60.0 ** i)
+            duration_seconds += float(m) * (60.0**i)
     except (ValueError, IndexError):
         return []
     self.log(f"Time we calculated: {duration_target} : {duration_seconds}")

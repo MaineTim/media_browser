@@ -1,6 +1,5 @@
 import platform
 import subprocess
-import time
 
 # Textual imports.
 from textual.app import ComposeResult
@@ -25,14 +24,13 @@ class Main(Screen):
     ]
 
     def __init__(self):
-        super(Main, self).__init__()
+        super().__init__()
 
         self.is_search = False
         self.current_hi_row = 0
         self.current_hi_row_key = None
         self.current_row = 0
         self.current_row_key = None
-        self.column_keys = []
         self.platform = platform.system()
         self.p_vlc = None
         self.sort_reverse = False
@@ -43,7 +41,7 @@ class Main(Screen):
 
     def action_file_info(self):
         try:
-            master_row = self.table.get_row_at(self.current_hi_row)[-1]
+            master_row = self.table.row_num_to_master_index(self.current_hi_row)
         except RowDoesNotExist:
             return
         self.app.current_data = self.app.master[master_row]
@@ -56,7 +54,7 @@ class Main(Screen):
             self.vlc_row = None
             return
         self.p_vlc = subprocess.Popen(
-            ut.build_command("vlc", ut.get_path(self, self.table.get_row_at(self.current_hi_row)[-1])),
+            ut.build_command("vlc", ut.get_path(self, self.table.row_num_to_master_index(self.current_hi_row))),
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
         )
@@ -75,11 +73,13 @@ class Main(Screen):
         yield Footer()
 
     def on_data_table_header_selected(self, event):
+        if event.column_key == self.table.column_keys[0]:
+            return
         if self.sort_key == event.column_key:
             self.sort_reverse = False if self.sort_reverse else True
         else:
             self.sort_reverse = False
-        self.table.sort(event.column_key, self.column_keys[0], reverse=self.sort_reverse)
+        self.table.sort(event.column_key, reverse=self.sort_reverse)
         self.sort_key = event.column_key
         coord = Coordinate(row=self.table.cursor_row, column=0)
         self.current_hi_row_key = self.table.coordinate_to_cell_key(coord).row_key
@@ -91,17 +91,16 @@ class Main(Screen):
         self.current_row = event.cursor_row
         self.current_row_key = event.row_key
         self.filename_input.action_delete_left_all()
-        self.filename_input.insert_text_at_cursor(self.table.get_row_at(event.cursor_row)[0])
+        self.filename_input.insert_text_at_cursor(self.table.row_num_to_master_attr(event.cursor_row, "name"))
 
     def on_data_table_row_highlighted(self, event: DataTable.CellSelected):
         self.current_hi_row = event.cursor_row
         self.current_hi_row_key = event.row_key
         self.filename_input.action_delete_left_all()
-        self.filename_input.insert_text_at_cursor(self.table.get_row_at(event.cursor_row)[0])
+        self.filename_input.insert_text_at_cursor(self.table.row_num_to_master_attr(event.cursor_row, "name"))
 
     def finish_mount(self):
-        self.sort_key = self.column_keys[0]
-        self.table.sort(self.sort_key)
+        self.sort_key = self.table.column_keys[0]
         self.current_hi_row_key = self.table.coordinate_to_cell_key((0, 0)).row_key
         self.set_focus(self.table)
         if self.app.args.translation_list and self.app.args.verbose:
@@ -117,41 +116,28 @@ class Main(Screen):
             ("Orig Dur", 10),
             ("Orig Min", 10),
             ("Curr Dur", 10),
-            ("Index", 0),
         ]
         if self.app.args.verbose:
             self.log(f"{len(self.app.master)} records found.")
         self.table = self.query_one(BrowserDataTable)
         self.table.cursor_type = "row"
         for c in columns:
-            self.column_keys.append(self.table.add_column(c[0], width=c[1]))
-        for i, item in enumerate(self.app.master):
-            min, sec = divmod(float(item.original_duration), 60)
-            self.app.master[i].data["main_row"] = self.table.add_row(
-                item.name,
-                item.original_size,
-                item.current_size,
-                item.date.strftime("%Y-%m-%d %H:%M:%S"),
-                item.backups,
-                time.strftime("%H:%M:%S", time.gmtime(float(item.original_duration))),
-                f"{round(min):02}:{round(sec):02}",
-                time.strftime("%H:%M:%S", time.gmtime(float(item.current_duration))),
-                item.data["index"],
-            )
+            self.table.column_keys.append(self.table.add_column(c[0], width=c[1]))
+        self.app.main_rows = self.table.build_table(self.app.master)
         self.filename_input = self.query_one(FilenameInput)
         self.filename_input.action_delete_left_all()
-        self.filename_input.insert_text_at_cursor(self.table.get_row_at(0)[0])
+        self.filename_input.insert_text_at_cursor(self.table.row_num_to_master_attr(0, "name"))
         self.table.call_after_refresh(self.finish_mount)
 
     def on_screen_resume(self):
         if self.app.changed != []:
-            for row, change, data in self.app.changed:
+            for index, change, data in self.app.changed:
                 match change:
                     case "D":
                         try:
-                            self.table.remove_row(row)
+                            self.table.remove_row(self.table.index_to_row_key(index))
                         except RowDoesNotExist:
                             ...
                     case "R":
-                        self.table.update_cell(row, self.column_keys[0], data)
+                        self.table.update_cell(self.table.index_to_row_key(index), self.table.column_keys[0], data)
             self.app.changed = []

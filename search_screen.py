@@ -1,7 +1,6 @@
 import bisect
 import platform
 import subprocess
-import time
 
 # Textual imports.
 from textual.app import ComposeResult
@@ -26,7 +25,7 @@ class Search(Screen):
     ]
 
     def __init__(self):
-        super(Search, self).__init__()
+        super().__init__()
         self.is_search = True
         self.current_hi_row = 0
         self.current_hi_row_key = None
@@ -43,7 +42,7 @@ class Search(Screen):
 
     def action_file_info(self):
         try:
-            master_row = self.table.get_row_at(self.current_hi_row)[-1]
+            master_row = self.table.row_num_to_master_index(self.current_hi_row)
         except RowDoesNotExist:
             return
         self.app.current_data = self.app.master[master_row]
@@ -59,7 +58,7 @@ class Search(Screen):
             self.vlc_row = None
             return
         self.p_vlc = subprocess.Popen(
-            ut.build_command("vlc", ut.get_path(self, self.table.get_row_at(self.current_hi_row)[-1])),
+            ut.build_command("vlc", ut.get_path(self, self.table.row_num_to_master_index(self.current_hi_row))),
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
         )
@@ -72,11 +71,13 @@ class Search(Screen):
         yield Footer()
 
     def on_data_table_header_selected(self, event):
+        if event.column_key == self.table.column_keys[0]:
+            return
         if self.sort_key == event.column_key:
             self.sort_reverse = False if self.sort_reverse else True
         else:
             self.sort_reverse = False
-        self.table.sort(event.column_key, self.column_keys[0], reverse=self.sort_reverse)
+        self.table.sort(event.column_key, reverse=self.sort_reverse)
         self.sort_key = event.column_key
         coord = Coordinate(row=self.table.cursor_row, column=0)
         self.current_hi_row_key = self.table.coordinate_to_cell_key(coord).row_key
@@ -88,22 +89,22 @@ class Search(Screen):
         self.current_row = event.cursor_row
         self.current_row_key = event.row_key
         self.filename_input.action_delete_left_all()
-        self.filename_input.insert_text_at_cursor(self.table.get_row_at(event.cursor_row)[0])
+        self.filename_input.insert_text_at_cursor(self.table.row_num_to_master_attr(event.cursor_row, "name"))
 
     def on_data_table_row_highlighted(self, event: DataTable.CellSelected):
         self.current_hi_row = event.cursor_row
         self.current_hi_row_key = event.row_key
         self.filename_input.action_delete_left_all()
-        self.filename_input.insert_text_at_cursor(self.table.get_row_at(event.cursor_row)[0])
+        self.filename_input.insert_text_at_cursor(self.table.row_num_to_master_attr(event.cursor_row, "name"))
 
     def finish_mount(self):
         def bisect_key(row):
             data = self.table.get_row(row)
             return self.app.master[data[8]].original_duration
 
-        self.sort_key = self.column_keys[6]
+        self.sort_key = self.table.column_keys[6]
         self.table.sort(self.sort_key)
-        self.table_rows.sort(key=bisect_key)
+        #        self.table_rows.sort(key=bisect_key)
         self.current_hi_row_key = self.table.coordinate_to_cell_key((0, 0)).row_key
         self.set_focus(self.table)
         if self.app.search_duration:
@@ -111,29 +112,6 @@ class Search(Screen):
             self.table.move_cursor(row=row)
         if self.app.args.translation_list and self.app.args.verbose:
             self.log(self.app.args.translation_list.keys())
-
-    def build_table(self):
-        self.table_rows = []
-        for i, item in enumerate(self.app.entries):
-            if "deleted" not in item.data.keys():
-                min, sec = divmod(float(item.original_duration), 60)
-                self.table_rows.append(
-                    self.table.add_row(
-                        item.name,
-                        item.original_size,
-                        item.current_size,
-                        item.date.strftime("%Y-%m-%d %H:%M:%S"),
-                        item.backups,
-                        time.strftime("%H:%M:%S", time.gmtime(float(item.original_duration))),
-                        f"{round(min):03}:{round(sec):02}",
-                        time.strftime("%H:%M:%S", time.gmtime(float(item.current_duration))),
-                        item.data["index"],
-                    )
-                )
-        self.filename_input = self.query_one(FilenameInput)
-        self.filename_input.action_delete_left_all()
-        self.filename_input.insert_text_at_cursor(self.table.get_row_at(0)[0])
-        self.table.call_after_refresh(self.finish_mount)
 
     def on_mount(self) -> None:
         columns = [
@@ -145,18 +123,25 @@ class Search(Screen):
             ("Orig Dur", 10),
             ("Orig Min", 10),
             ("Curr Dur", 10),
-            ("Index", 0),
         ]
         if self.app.args.verbose:
             self.log(f"{len(self.app.entries)} records found.")
         self.table = self.query_one(BrowserDataTable)
         self.table.cursor_type = "row"
         for c in columns:
-            self.column_keys.append(self.table.add_column(c[0], width=c[1]))
-        self.build_table()
+            self.table.column_keys.append(self.table.add_column(c[0], width=c[1]))
+        self.app.search_rows = self.table.build_table(self.app.entries)
+        self.filename_input = self.query_one(FilenameInput)
+        self.filename_input.action_delete_left_all()
+        self.filename_input.insert_text_at_cursor(self.table.row_num_to_master_attr(0, "name"))
+        self.table.call_after_refresh(self.finish_mount)
 
     def on_screen_resume(self):
         if self.app.new_table:
             self.app.new_table = False
             self.table.clear()
-            self.build_table()
+            self.app.search_rows = self.table.build_table(self.app.entries)
+            self.filename_input = self.query_one(FilenameInput)
+            self.filename_input.action_delete_left_all()
+            self.filename_input.insert_text_at_cursor(self.table.row_num_to_master_attr(0, "name"))
+            self.table.call_after_refresh(self.finish_mount)
