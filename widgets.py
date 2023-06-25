@@ -108,6 +108,7 @@ class BrowserDataTable(DataTable):
         return super().add_row(Text(args[0]), *args[1:], **kwargs)
 
     def build_table(self, entries):
+        self.table_rows = {}
         for i, item in enumerate(entries):
             if "deleted" not in item.data.keys():
                 min, sec = divmod(float(item.original_duration), 60)
@@ -154,3 +155,9 @@ class BrowserDataTable(DataTable):
     def row_num_to_master_index(self, row_num):
         row_key = self.row_num_to_row_key(row_num)
         return self.table_rows[row_key].index
+
+    def row_key_to_row_num(self, row_key):
+        for i, item in enumerate(self.ordered_rows):
+            if item.key == row_key:
+                return i
+        return -1

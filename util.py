@@ -162,7 +162,8 @@ def search_duration(self, master, args):
             duration_seconds += float(m) * (60.0**i)
     except (ValueError, IndexError):
         return []
-    self.log(f"Time we calculated: {duration_target} : {duration_seconds}")
+    if self.app.args.verbose:
+        self.log(f"Time we calculated: {duration_target} : {duration_seconds}")
     return (
         duration_seconds,
         [
@@ -171,3 +172,13 @@ def search_duration(self, master, args):
             if (item.current_duration - 300.0) < duration_seconds < (item.current_duration + 300)
         ],
     )
+
+
+def closest_row(self):
+    closest = 1000
+    for key, data in self.table.table_rows.items():
+        diff = abs(self.app.search_duration - self.app.master[data.index].original_duration)
+        if diff < closest:
+            closest = diff
+            closest_row_key = key
+    return self.table.row_key_to_row_num(closest_row_key)

@@ -1,4 +1,3 @@
-import bisect
 import platform
 import subprocess
 
@@ -98,18 +97,13 @@ class Search(Screen):
         self.filename_input.insert_text_at_cursor(self.table.row_num_to_master_attr(event.cursor_row, "name"))
 
     def finish_mount(self):
-        def bisect_key(row):
-            data = self.table.get_row(row)
-            return self.app.master[data[8]].original_duration
-
         self.sort_key = self.table.column_keys[6]
         self.table.sort(self.sort_key)
-        #        self.table_rows.sort(key=bisect_key)
         self.current_hi_row_key = self.table.coordinate_to_cell_key((0, 0)).row_key
         self.set_focus(self.table)
         if self.app.search_duration:
-            row = bisect.bisect_left(self.table_rows, self.app.search_duration, key=bisect_key)
-            self.table.move_cursor(row=row)
+            closest_row = ut.closest_row(self)
+            self.table.move_cursor(row=closest_row)
         if self.app.args.translation_list and self.app.args.verbose:
             self.log(self.app.args.translation_list.keys())
 
