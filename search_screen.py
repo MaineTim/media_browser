@@ -69,6 +69,17 @@ class Search(Screen):
         yield FilenameInput()
         yield Footer()
 
+    def finish_mount(self):
+        self.sort_key = self.table.column_keys[6]
+        self.table.sort(self.sort_key)
+        self.current_hi_row_key = self.table.coordinate_to_cell_key((0, 0)).row_key
+        self.set_focus(self.table)
+        if self.app.search_duration:
+            closest_row = ut.closest_row(self)
+            self.table.move_cursor(row=closest_row)
+        if self.app.args.translation_list and self.app.args.verbose:
+            self.log(self.app.args.translation_list.keys())
+
     def on_data_table_header_selected(self, event):
         if event.column_key == self.table.column_keys[0]:
             return
@@ -81,6 +92,12 @@ class Search(Screen):
         coord = Coordinate(row=self.table.cursor_row, column=0)
         self.current_hi_row_key = self.table.coordinate_to_cell_key(coord).row_key
 
+    def on_data_table_row_highlighted(self, event: DataTable.CellSelected):
+        self.current_hi_row = event.cursor_row
+        self.current_hi_row_key = event.row_key
+        self.filename_input.action_delete_left_all()
+        self.filename_input.insert_text_at_cursor(self.table.row_num_to_master_attr(event.cursor_row, "name"))
+
     def on_data_table_row_selected(self, event: DataTable.CellSelected):
         if self.table.enter_pressed:
             self.table.enter_pressed = False
@@ -89,23 +106,6 @@ class Search(Screen):
         self.current_row_key = event.row_key
         self.filename_input.action_delete_left_all()
         self.filename_input.insert_text_at_cursor(self.table.row_num_to_master_attr(event.cursor_row, "name"))
-
-    def on_data_table_row_highlighted(self, event: DataTable.CellSelected):
-        self.current_hi_row = event.cursor_row
-        self.current_hi_row_key = event.row_key
-        self.filename_input.action_delete_left_all()
-        self.filename_input.insert_text_at_cursor(self.table.row_num_to_master_attr(event.cursor_row, "name"))
-
-    def finish_mount(self):
-        self.sort_key = self.table.column_keys[6]
-        self.table.sort(self.sort_key)
-        self.current_hi_row_key = self.table.coordinate_to_cell_key((0, 0)).row_key
-        self.set_focus(self.table)
-        if self.app.search_duration:
-            closest_row = ut.closest_row(self)
-            self.table.move_cursor(row=closest_row)
-        if self.app.args.translation_list and self.app.args.verbose:
-            self.log(self.app.args.translation_list.keys())
 
     def on_mount(self) -> None:
         columns = [

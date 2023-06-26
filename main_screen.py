@@ -20,6 +20,7 @@ class Main(Screen):
         ("d", "delete_file", "Del"),
         ("i", "file_info", "Info"),
         ("q", "quit", "Quit"),
+        ("r", "refresh", "Refresh"),
         ("/", "search", "Search"),
     ]
 
@@ -47,6 +48,10 @@ class Main(Screen):
         self.app.current_data = self.app.master[master_row]
         self.app.push_screen("info")
 
+    def action_refresh(self):
+        self.app.master_instance.refresh()
+        self.use_name_sort()
+
     def action_run_viewer(self):
         if self.p_vlc:
             ut.kill_vlc(self)
@@ -72,17 +77,32 @@ class Main(Screen):
         yield FilenameInput()
         yield Footer()
 
+    def finish_mount(self):
+        self.sort_key = self.table.column_keys[0]
+        self.current_hi_row_key = self.table.coordinate_to_cell_key((0, 0)).row_key
+        self.set_focus(self.table)
+        if self.app.args.translation_list and self.app.args.verbose:
+            self.log(self.app.args.translation_list.keys())
+
     def on_data_table_header_selected(self, event):
         if event.column_key == self.table.column_keys[0]:
-            return
-        if self.sort_key == event.column_key:
-            self.sort_reverse = False if self.sort_reverse else True
+            self.use_name_sort()
+            self.sort_key = self.table.column_keys[0]
         else:
-            self.sort_reverse = False
-        self.table.sort(event.column_key, reverse=self.sort_reverse)
-        self.sort_key = event.column_key
+            if self.sort_key == event.column_key:
+                self.sort_reverse = False if self.sort_reverse else True
+            else:
+                self.sort_reverse = False
+            self.table.sort(event.column_key, reverse=self.sort_reverse)
+            self.sort_key = event.column_key
         coord = Coordinate(row=self.table.cursor_row, column=0)
         self.current_hi_row_key = self.table.coordinate_to_cell_key(coord).row_key
+
+    def on_data_table_row_highlighted(self, event: DataTable.CellSelected):
+        self.current_hi_row = event.cursor_row
+        self.current_hi_row_key = event.row_key
+        self.filename_input.action_delete_left_all()
+        self.filename_input.insert_text_at_cursor(self.table.row_num_to_master_attr(event.cursor_row, "name"))
 
     def on_data_table_row_selected(self, event: DataTable.CellSelected):
         if self.table.enter_pressed:
@@ -92,19 +112,6 @@ class Main(Screen):
         self.current_row_key = event.row_key
         self.filename_input.action_delete_left_all()
         self.filename_input.insert_text_at_cursor(self.table.row_num_to_master_attr(event.cursor_row, "name"))
-
-    def on_data_table_row_highlighted(self, event: DataTable.CellSelected):
-        self.current_hi_row = event.cursor_row
-        self.current_hi_row_key = event.row_key
-        self.filename_input.action_delete_left_all()
-        self.filename_input.insert_text_at_cursor(self.table.row_num_to_master_attr(event.cursor_row, "name"))
-
-    def finish_mount(self):
-        self.sort_key = self.table.column_keys[0]
-        self.current_hi_row_key = self.table.coordinate_to_cell_key((0, 0)).row_key
-        self.set_focus(self.table)
-        if self.app.args.translation_list and self.app.args.verbose:
-            self.log(self.app.args.translation_list.keys())
 
     def on_mount(self) -> None:
         columns = [
@@ -141,3 +148,11 @@ class Main(Screen):
                     case "R":
                         self.table.update_cell(self.table.index_to_row_key(index), self.table.column_keys[0], data)
             self.app.changed = []
+
+    def use_name_sort(self):
+        self.table.clear()
+        self.app.main_rows = self.table.build_table(self.app.master)
+        self.filename_input = self.query_one(FilenameInput)
+        self.filename_input.action_delete_left_all()
+        self.filename_input.insert_text_at_cursor(self.table.row_num_to_master_attr(0, "name"))
+        self.table.call_after_refresh(self.finish_mount)

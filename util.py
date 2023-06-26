@@ -22,6 +22,16 @@ def build_command(*args):
     return command
 
 
+def closest_row(self):
+    closest = 1000
+    for key, data in self.table.table_rows.items():
+        diff = abs(self.app.search_duration - self.app.master[data.index].original_duration)
+        if diff < closest:
+            closest = diff
+            closest_row_key = key
+    return self.table.row_key_to_row_num(closest_row_key)
+
+
 def delete_file(self):
     try:
         master_index = self.table.row_num_to_master_index(self.current_hi_row)
@@ -77,26 +87,6 @@ def kill_vlc(self):
     self.p_vlc = None
 
 
-def rename_file(self):
-    if self.app.args.verbose:
-        self.log(f"{self.current_file} -> {self.new_file}")
-    if not self.app.args.no_action:
-        shutil.move(self.current_file, self.new_file)
-    self.parent.set_focus(self.parent.table)
-    self.parent.table.update_cell_at((self.parent.current_row, 0), os.path.basename(self.new_file))
-    self.app.master[self.master_row].name = os.path.basename(self.new_file)
-    self.app.changed.append((self.master_row, "R", os.path.basename(self.new_file)))
-
-
-def remove_char(string, index):
-    if index == 0:
-        return string[1:]
-    elif index == len(string) - 1:
-        return string[:-1]
-    else:
-        return string[:index] + string[index + 1 :]
-
-
 def parse_target_strings(args):
     """
     Create a regex that will match the set of targets given.
@@ -127,6 +117,26 @@ def parse_target_strings(args):
     if or_count > 0:
         target_regex += "]"
     return target_regex, targets
+
+
+def rename_file(self):
+    if self.app.args.verbose:
+        self.log(f"{self.current_file} -> {self.new_file}")
+    if not self.app.args.no_action:
+        shutil.move(self.current_file, self.new_file)
+    self.parent.set_focus(self.parent.table)
+    self.parent.table.update_cell_at((self.parent.current_row, 0), os.path.basename(self.new_file))
+    self.app.master[self.master_row].name = os.path.basename(self.new_file)
+    self.app.changed.append((self.master_row, "R", os.path.basename(self.new_file)))
+
+
+def remove_char(string, index):
+    if index == 0:
+        return string[1:]
+    elif index == len(string) - 1:
+        return string[:-1]
+    else:
+        return string[:index] + string[index + 1 :]
 
 
 def search_strings(self, master, args, case_insensitive=True):
@@ -172,13 +182,3 @@ def search_duration(self, master, args):
             if (item.current_duration - 300.0) < duration_seconds < (item.current_duration + 300)
         ],
     )
-
-
-def closest_row(self):
-    closest = 1000
-    for key, data in self.table.table_rows.items():
-        diff = abs(self.app.search_duration - self.app.master[data.index].original_duration)
-        if diff < closest:
-            closest = diff
-            closest_row_key = key
-    return self.table.row_key_to_row_num(closest_row_key)

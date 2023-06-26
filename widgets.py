@@ -130,25 +130,27 @@ class BrowserDataTable(DataTable):
         row_key, _ = self.coordinate_to_cell_key(self.cursor_coordinate)
         return row_key
 
-    def on_key(self, event):
-        if event.key == "enter":
-            self.enter_pressed = True
-
-    def row_num_to_row_key(self, row: int):
-        row_key, _ = self.coordinate_to_cell_key((row, 0))
-        return row_key
-
     def index_to_row_key(self, index):
         for key, values in self.table_rows.items():
             if values.index == index:
                 return key
 
-    def row_num_to_master_attr(self, row_num, attrstr):
-        row_key = self.row_num_to_row_key(row_num)
+    def on_key(self, event):
+        if event.key == "enter":
+            self.enter_pressed = True
+
+    def row_key_to_master_attr(self, row_key, attrstr):
         attr = getattr(self.app.master[self.table_rows[row_key].index], attrstr)
         return attr
 
-    def row_key_to_master_attr(self, row_key, attrstr):
+    def row_key_to_row_num(self, row_key):
+        for i, item in enumerate(self.ordered_rows):
+            if item.key == row_key:
+                return i
+        return -1
+
+    def row_num_to_master_attr(self, row_num, attrstr):
+        row_key = self.row_num_to_row_key(row_num)
         attr = getattr(self.app.master[self.table_rows[row_key].index], attrstr)
         return attr
 
@@ -156,8 +158,6 @@ class BrowserDataTable(DataTable):
         row_key = self.row_num_to_row_key(row_num)
         return self.table_rows[row_key].index
 
-    def row_key_to_row_num(self, row_key):
-        for i, item in enumerate(self.ordered_rows):
-            if item.key == row_key:
-                return i
-        return -1
+    def row_num_to_row_key(self, row: int):
+        row_key, _ = self.coordinate_to_cell_key((row, 0))
+        return row_key

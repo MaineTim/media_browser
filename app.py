@@ -50,18 +50,23 @@ class Getargs:
 
 class Masterfile:
     def __init__(self, mf_path, filebrowser=False):
+        self.mf_path = mf_path
+        self.filebrowser = filebrowser
+        self.refresh()
+
+    def refresh(self):
         self.master = []
-        if filebrowser:
-            if os.path.exists(mf_path):
-                master = ml.create_file_list(mf_path, True)
+        if self.filebrowser:
+            if os.path.exists(self.mf_path):
+                master = ml.create_file_list(self.mf_path, True)
             else:
-                ut.exit_error(f"Path not found: {mf_path}")
+                ut.exit_error(f"Path not found: {self.mf_path}")
         else:
-            if os.path.exists(mf_path):
-                with open(mf_path, "rb") as f:
+            if os.path.exists(self.mf_path):
+                with open(self.mf_path, "rb") as f:
                     master = pickle.load(f)
             else:
-                ut.exit_error(f"Database file not found: {mf_path}")
+                ut.exit_error(f"Database file not found: {self.mf_path}")
         master.sort(key=lambda x: x.name)
         for i, item in enumerate(master):
             item.data["index"] = i
@@ -90,8 +95,8 @@ class Browser(App[None]):
         self.current_data = None
         self.search_duration = 0.0
         self.args = Getargs()
-        master = Masterfile(self.app.args.master_input_path, self.args.file_browser)
-        self.master = master.master
+        self.master_instance = Masterfile(self.app.args.master_input_path, self.args.file_browser)
+        self.master = self.master_instance.master
         self.push_screen("main")
 
 
