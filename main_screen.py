@@ -1,6 +1,9 @@
 import platform
 import subprocess
 
+from rich.style import Style
+from rich.text import Text
+
 # Textual imports.
 from textual.app import ComposeResult
 from textual.coordinate import Coordinate
@@ -21,6 +24,7 @@ class Main(Screen):
         ("i", "file_info", "Info"),
         ("q", "quit", "Quit"),
         ("r", "refresh", "Refresh"),
+        ("t", "tag", "Tag"),
         ("/", "search", "Search"),
     ]
 
@@ -70,6 +74,17 @@ class Main(Screen):
         self.search_input = SearchInput()
         self.mount(self.search_input, after=self.table)
         self.set_focus(self.search_input)
+
+    def action_tag(self):
+        self.table.table_rows[self.current_hi_row_key].tagged = not self.table.table_rows[self.current_hi_row_key].tagged
+        print(f"Tagged value: {self.table.table_rows[self.current_hi_row_key].tagged}")
+        if self.table.table_rows[self.current_hi_row_key].tagged:
+            new_cell = Text(self.app.master[self.table.table_rows[self.current_hi_row_key].index].name)
+            new_cell.stylize(Style(bgcolor="yellow"))
+            self.table.update_cell_at((self.current_hi_row, 0), new_cell)
+        else:
+            new_cell = Text(self.app.master[self.table.table_rows[self.current_hi_row_key].index].name)
+            self.table.update_cell_at((self.current_hi_row, 0), new_cell)
 
     def compose(self) -> ComposeResult:
         yield Header()
