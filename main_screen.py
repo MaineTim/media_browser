@@ -49,7 +49,7 @@ class Main(Screen):
         self.app.push_screen("info")
 
     def action_refresh(self):
-        self.app.master_instance.refresh()
+        self.app.master_refresh()
         self.use_name_sort()
 
     def action_run_viewer(self):

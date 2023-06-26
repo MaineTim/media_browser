@@ -49,7 +49,7 @@ class FilenameInput(Input):
 
     def action_input_cancel(self):
         self.value = ""
-        self.insert_text_at_cursor(self.parent.table.get_row_at(self.parent.current_hi_row)[0])
+        self.insert_text_at_cursor(self.parent.table.row_num_to_master_attr(self.parent.current_hi_row, "name"))
         self.parent.set_focus(self.parent.table)
 
     def action_submit(self):

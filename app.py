@@ -99,6 +99,10 @@ class Browser(App[None]):
         self.master = self.master_instance.master
         self.push_screen("main")
 
+    def master_refresh(self):
+        self.master_instance.refresh()
+        self.master = self.master_instance.master
+
 
 if __name__ == "__main__":
     Browser().run()
