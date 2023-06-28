@@ -11,8 +11,6 @@ import psutil
 from textual.coordinate import Coordinate
 from textual.widgets.data_table import CellDoesNotExist, RowDoesNotExist
 
-# Local imports
-
 
 def build_command(*args):
     command = [args[0]]
@@ -87,6 +85,10 @@ def kill_vlc(self):
     self.p_vlc = None
 
 
+def move_file(self):
+    print(f"Move {self.current_file} -> {self.new_file}")
+
+
 def parse_target_strings(args):
     """
     Create a regex that will match the set of targets given.
@@ -119,6 +121,15 @@ def parse_target_strings(args):
     return target_regex, targets
 
 
+def remove_char(string, index):
+    if index == 0:
+        return string[1:]
+    elif index == len(string) - 1:
+        return string[:-1]
+    else:
+        return string[:index] + string[index + 1 :]
+
+
 def rename_file(self):
     if self.app.args.verbose:
         self.log(f"{self.current_file} -> {self.new_file}")
@@ -130,13 +141,24 @@ def rename_file(self):
     self.app.changed.append((self.master_row, "R", os.path.basename(self.new_file)))
 
 
-def remove_char(string, index):
-    if index == 0:
-        return string[1:]
-    elif index == len(string) - 1:
-        return string[:-1]
-    else:
-        return string[:index] + string[index + 1 :]
+def search_duration(self, master, args):
+    duration_target = args[0][1:].split(".")
+    duration_seconds = 0.0
+    try:
+        for i, m in enumerate(reversed(duration_target)):
+            duration_seconds += float(m) * (60.0**i)
+    except (ValueError, IndexError):
+        return []
+    if self.app.args.verbose:
+        self.log(f"Time we calculated: {duration_target} : {duration_seconds}")
+    return (
+        duration_seconds,
+        [
+            master[index]
+            for index, item in enumerate(master)
+            if (item.current_duration - 300.0) < duration_seconds < (item.current_duration + 300)
+        ],
+    )
 
 
 def search_strings(self, master, args, case_insensitive=True):
@@ -162,23 +184,3 @@ def search_strings(self, master, args, case_insensitive=True):
                 if re.search(target_regex, tokens):
                     file_indexes.append(i)
     return [master[index] for index in file_indexes]
-
-
-def search_duration(self, master, args):
-    duration_target = args[0][1:].split(".")
-    duration_seconds = 0.0
-    try:
-        for i, m in enumerate(reversed(duration_target)):
-            duration_seconds += float(m) * (60.0**i)
-    except (ValueError, IndexError):
-        return []
-    if self.app.args.verbose:
-        self.log(f"Time we calculated: {duration_target} : {duration_seconds}")
-    return (
-        duration_seconds,
-        [
-            master[index]
-            for index, item in enumerate(master)
-            if (item.current_duration - 300.0) < duration_seconds < (item.current_duration + 300)
-        ],
-    )

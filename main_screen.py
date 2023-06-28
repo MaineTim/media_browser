@@ -13,7 +13,7 @@ from textual.widgets.data_table import RowDoesNotExist
 
 # Local imports.
 import util as ut
-from widgets import BrowserDataTable, FilenameInput, SearchInput
+from widgets import BrowserDataTable, FilenameInput, SearchInput, TargetPathInput
 
 
 class Main(Screen):
@@ -22,6 +22,7 @@ class Main(Screen):
         ("space", "run_viewer", "View"),
         ("d", "delete_file", "Del"),
         ("i", "file_info", "Info"),
+        ("m", "move_file", "Move"),
         ("q", "quit", "Quit"),
         ("r", "refresh", "Refresh"),
         ("t", "tag", "Tag"),
@@ -52,6 +53,14 @@ class Main(Screen):
         self.app.current_data = self.app.master[master_row]
         self.app.push_screen("info")
 
+    def action_move_file(self):
+        self.filename_input.remove()
+        self.move_target_input = TargetPathInput()
+        self.mount(self.move_target_input, after=self.table)
+        self.move_target_input.action_delete_left_all()
+        self.move_target_input.insert_text_at_cursor(self.app.move_target_path)
+        self.set_focus(self.move_target_input)
+
     def action_refresh(self):
         self.app.master_refresh()
         self.use_name_sort()
@@ -76,8 +85,9 @@ class Main(Screen):
         self.set_focus(self.search_input)
 
     def action_tag(self):
-        self.table.table_rows[self.current_hi_row_key].tagged = not self.table.table_rows[self.current_hi_row_key].tagged
-        print(f"Tagged value: {self.table.table_rows[self.current_hi_row_key].tagged}")
+        self.table.table_rows[self.current_hi_row_key].tagged = not self.table.table_rows[
+            self.current_hi_row_key
+        ].tagged
         if self.table.table_rows[self.current_hi_row_key].tagged:
             new_cell = Text(self.app.master[self.table.table_rows[self.current_hi_row_key].index].name)
             new_cell.stylize(Style(bgcolor="yellow"))
