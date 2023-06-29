@@ -179,23 +179,24 @@ class TargetPathInput(Input):
 
     def action_submit(self):
         self.app.move_target_path = self.value
-        self.master_row = self.parent.table.row_num_to_master_index(self.parent.current_hi_row)
-        self.current_data = self.app.master[self.master_row]
-        self.current_file = os.path.join(self.current_data.path, self.current_data.name)
-        self.new_file = os.path.join(self.value, self.current_data.name)
-        if os.path.exists(self.new_file):
-            self.app.install_screen(TargetPathYesNoScreen(self), "target_path")
-            self.app.push_screen("target_path")
+        if self.parent.tag_count > 0:
+            indexes = [
+                self.parent.table.table_rows[key].index
+                for key in self.parent.table.table_rows.keys()
+                if self.parent.table.table_rows[key].tagged
+            ]
         else:
-            ut.move_file(self)
-            self.action_input_cancel()
-
-    # def on_focus_move_cursor(self):
-    #     self.action_cursor_left_word()
-    #     self.action_cursor_left()
-
-    # def on_focus(self):
-    #     self.call_after_refresh(self.on_focus_move_cursor)
+            indexes = [self.parent.table.row_num_to_master_index(self.parent.current_hi_row)]
+        for index in indexes:
+            current_data = self.app.master[index]
+            self.current_file = os.path.join(current_data.path, current_data.name)
+            self.new_file = os.path.join(self.value, current_data.name)
+            if os.path.exists(self.new_file):
+                self.app.install_screen(TargetPathYesNoScreen(self), "target_path")
+                self.app.push_screen("target_path")
+            else:
+                ut.move_file(self)
+        self.action_input_cancel()
 
 
 class TargetPathYesNoScreen(Screen):

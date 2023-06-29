@@ -1,12 +1,10 @@
 import platform
-import subprocess
 
 # Textual imports.
 from textual.app import ComposeResult
 from textual.coordinate import Coordinate
 from textual.screen import Screen
 from textual.widgets import DataTable, Footer, Header
-from textual.widgets.data_table import RowDoesNotExist
 
 # Local imports.
 import util as ut
@@ -20,48 +18,42 @@ class Search(Screen):
         ("space", "run_viewer", "View"),
         ("d", "delete_file", "Del"),
         ("i", "file_info", "Info"),
+        ("m", "move_file", "Move"),
         ("q", "quit", "Quit"),
+        ("t", "tag", "Tag"),
     ]
 
     def __init__(self):
         super().__init__()
-        self.is_search = True
         self.current_hi_row = 0
         self.current_hi_row_key = None
         self.current_row = 0
         self.current_row_key = None
         self.column_keys = []
+        self.is_search = True
         self.platform = platform.system()
         self.p_vlc = None
         self.sort_reverse = False
+        self.tag_count = 0
         self.vlc_row = None
 
     def action_delete_file(self):
         ut.delete_file(self)
 
     def action_file_info(self):
-        try:
-            master_row = self.table.row_num_to_master_index(self.current_hi_row)
-        except RowDoesNotExist:
-            return
-        self.app.current_data = self.app.master[master_row]
-        self.app.push_screen("info")
+        ut.action_file_info(self)
+
+    def action_move_file(self):
+        ut.action_move_file(self)
 
     def action_return_to_main(self):
         self.app.pop_screen()
 
     def action_run_viewer(self):
-        if self.p_vlc:
-            ut.kill_vlc(self)
-        if self.vlc_row == self.current_hi_row:
-            self.vlc_row = None
-            return
-        self.p_vlc = subprocess.Popen(
-            ut.build_command("vlc", ut.get_path(self, self.table.row_num_to_master_index(self.current_hi_row))),
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-        )
-        self.vlc_row = self.current_hi_row
+        ut.action_run_viewer(self)
+
+    def action_tag(self):
+        ut.action_tag(self)
 
     def compose(self) -> ComposeResult:
         yield Header()

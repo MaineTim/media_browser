@@ -1,8 +1,4 @@
 import platform
-import subprocess
-
-from rich.style import Style
-from rich.text import Text
 
 # Textual imports.
 from textual.app import ComposeResult
@@ -13,7 +9,7 @@ from textual.widgets.data_table import RowDoesNotExist
 
 # Local imports.
 import util as ut
-from widgets import BrowserDataTable, FilenameInput, SearchInput, TargetPathInput
+from widgets import BrowserDataTable, FilenameInput, SearchInput
 
 
 class Main(Screen):
@@ -31,52 +27,32 @@ class Main(Screen):
 
     def __init__(self):
         super().__init__()
-
-        self.is_search = False
         self.current_hi_row = 0
         self.current_hi_row_key = None
         self.current_row = 0
         self.current_row_key = None
+        self.is_search = False
         self.platform = platform.system()
         self.p_vlc = None
         self.sort_reverse = False
+        self.tag_count = 0
         self.vlc_row = None
 
     def action_delete_file(self):
         ut.delete_file(self)
 
     def action_file_info(self):
-        try:
-            master_row = self.table.row_num_to_master_index(self.current_hi_row)
-        except RowDoesNotExist:
-            return
-        self.app.current_data = self.app.master[master_row]
-        self.app.push_screen("info")
+        ut.action_file_info(self)
 
     def action_move_file(self):
-        self.filename_input.remove()
-        self.move_target_input = TargetPathInput()
-        self.mount(self.move_target_input, after=self.table)
-        self.move_target_input.action_delete_left_all()
-        self.move_target_input.insert_text_at_cursor(self.app.move_target_path)
-        self.set_focus(self.move_target_input)
+        ut.action_move_file(self)
 
     def action_refresh(self):
         self.app.master_refresh()
         self.use_name_sort()
 
     def action_run_viewer(self):
-        if self.p_vlc:
-            ut.kill_vlc(self)
-        if self.vlc_row == self.current_hi_row:
-            self.vlc_row = None
-            return
-        self.p_vlc = subprocess.Popen(
-            ut.build_command("vlc", ut.get_path(self, self.table.row_num_to_master_index(self.current_hi_row))),
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-        )
-        self.vlc_row = self.current_hi_row
+        ut.action_run_viewer(self)
 
     def action_search(self):
         self.filename_input.remove()
@@ -85,16 +61,7 @@ class Main(Screen):
         self.set_focus(self.search_input)
 
     def action_tag(self):
-        self.table.table_rows[self.current_hi_row_key].tagged = not self.table.table_rows[
-            self.current_hi_row_key
-        ].tagged
-        if self.table.table_rows[self.current_hi_row_key].tagged:
-            new_cell = Text(self.app.master[self.table.table_rows[self.current_hi_row_key].index].name)
-            new_cell.stylize(Style(bgcolor="yellow"))
-            self.table.update_cell_at((self.current_hi_row, 0), new_cell)
-        else:
-            new_cell = Text(self.app.master[self.table.table_rows[self.current_hi_row_key].index].name)
-            self.table.update_cell_at((self.current_hi_row, 0), new_cell)
+        ut.action_tag(self)
 
     def compose(self) -> ComposeResult:
         yield Header()

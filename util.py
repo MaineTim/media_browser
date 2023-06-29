@@ -2,14 +2,64 @@ import os
 import platform
 import re
 import shutil
+import subprocess
 import sys
 
 import ahocorasick_rs as ah
 import psutil
+from rich.style import Style
+from rich.text import Text
 
 # Textual imports
 from textual.coordinate import Coordinate
 from textual.widgets.data_table import CellDoesNotExist, RowDoesNotExist
+
+from widgets import TargetPathInput
+
+
+def action_file_info(self):
+    try:
+        master_row = self.table.row_num_to_master_index(self.current_hi_row)
+    except RowDoesNotExist:
+        return
+    self.app.current_data = self.app.master[master_row]
+    self.app.push_screen("info")
+
+
+def action_move_file(self):
+    self.filename_input.remove()
+    self.move_target_input = TargetPathInput()
+    self.mount(self.move_target_input, after=self.table)
+    self.move_target_input.action_delete_left_all()
+    self.move_target_input.insert_text_at_cursor(self.app.move_target_path)
+    self.set_focus(self.move_target_input)
+
+
+def action_run_viewer(self):
+    if self.p_vlc:
+        kill_vlc(self)
+    if self.vlc_row == self.current_hi_row:
+        self.vlc_row = None
+        return
+    self.p_vlc = subprocess.Popen(
+        build_command("vlc", get_path(self, self.table.row_num_to_master_index(self.current_hi_row))),
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
+    self.vlc_row = self.current_hi_row
+
+
+def action_tag(self):
+    self.table.table_rows[self.current_hi_row_key].tagged = not self.table.table_rows[self.current_hi_row_key].tagged
+    if self.table.table_rows[self.current_hi_row_key].tagged:
+        new_cell = Text(self.app.master[self.table.table_rows[self.current_hi_row_key].index].name)
+        new_cell.stylize(Style(bgcolor="yellow"))
+        self.table.update_cell_at((self.current_hi_row, 0), new_cell)
+        self.tag_count += 1
+    else:
+        new_cell = Text(self.app.master[self.table.table_rows[self.current_hi_row_key].index].name)
+        self.table.update_cell_at((self.current_hi_row, 0), new_cell)
+        self.tag_count -= 1
 
 
 def build_command(*args):
