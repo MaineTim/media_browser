@@ -9,12 +9,13 @@ from textual.widgets.data_table import RowDoesNotExist
 
 # Local imports.
 import util as ut
-from widgets import BrowserDataTable, FilenameInput, SearchInput
+from widgets import BrowserDataTable, FilenameInput, SearchInput, SearchInputQuote
 
 
 class Main(Screen):
 
     BINDINGS = [
+        ('"', "search_quote", "Quote"),
         ("space", "run_viewer", "View"),
         ("d", "delete_file", "Del"),
         ("i", "file_info", "Info"),
@@ -58,6 +59,13 @@ class Main(Screen):
         self.filename_input.remove()
         self.search_input = SearchInput()
         self.mount(self.search_input, after=self.table)
+        self.set_focus(self.search_input)
+
+    def action_search_quote(self):
+        self.filename_input.remove()
+        self.search_input = SearchInputQuote()
+        self.mount(self.search_input, after=self.table)
+        self.search_input.insert_text_at_cursor('" .mp4"')
         self.set_focus(self.search_input)
 
     def action_tag(self):
