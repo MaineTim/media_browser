@@ -33,6 +33,7 @@ class Search(Screen):
         self.is_search = True
         self.platform = platform.system()
         self.p_vlc = None
+        self.screen_rows= {}
         self.sort_reverse = False
         self.tag_count = 0
         self.vlc_row = None
@@ -116,7 +117,7 @@ class Search(Screen):
         self.table.cursor_type = "row"
         for c in columns:
             self.table.column_keys.append(self.table.add_column(c[0], width=c[1]))
-        self.app.search_rows = self.table.build_table(self.app.entries)
+        self.screen_rows = self.table.build_table(self.app.entries)
         self.filename_input = self.query_one(FilenameInput)
         self.filename_input.action_delete_left_all()
         self.filename_input.insert_text_at_cursor(self.table.row_num_to_master_attr(0, "name"))
@@ -126,7 +127,7 @@ class Search(Screen):
         if self.app.new_table:
             self.app.new_table = False
             self.table.clear()
-            self.app.search_rows = self.table.build_table(self.app.entries)
+            self.screen_rows = self.table.build_table(self.app.entries)
             self.filename_input = self.query_one(FilenameInput)
             self.filename_input.action_delete_left_all()
             self.filename_input.insert_text_at_cursor(self.table.row_num_to_master_attr(0, "name"))

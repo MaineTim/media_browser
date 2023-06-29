@@ -35,6 +35,7 @@ class Main(Screen):
         self.is_search = False
         self.platform = platform.system()
         self.p_vlc = None
+        self.screen_rows = {}
         self.sort_reverse = False
         self.tag_count = 0
         self.vlc_row = None
@@ -130,7 +131,7 @@ class Main(Screen):
         self.table.cursor_type = "row"
         for c in columns:
             self.table.column_keys.append(self.table.add_column(c[0], width=c[1]))
-        self.app.main_rows = self.table.build_table(self.app.master)
+        self.screen_rows = self.table.build_table(self.app.master)
         self.filename_input = self.query_one(FilenameInput)
         self.filename_input.action_delete_left_all()
         self.filename_input.insert_text_at_cursor(self.table.row_num_to_master_attr(0, "name"))
@@ -151,7 +152,7 @@ class Main(Screen):
 
     def use_name_sort(self):
         self.table.clear()
-        self.app.main_rows = self.table.build_table(self.app.master)
+        self.screen_rows = self.table.build_table(self.app.master)
         self.filename_input = self.query_one(FilenameInput)
         self.filename_input.action_delete_left_all()
         self.filename_input.insert_text_at_cursor(self.table.row_num_to_master_attr(0, "name"))
