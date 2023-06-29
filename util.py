@@ -136,7 +136,10 @@ def kill_vlc(self):
 
 
 def move_file(self):
-    print(f"Move {self.current_file} -> {self.new_file}")
+    if self.app.args.verbose:
+        self.log(f"{self.current_file} -> {self.new_file}")
+    if not self.app.args.no_action:
+        shutil.move(self.current_file, self.new_file)
 
 
 def parse_target_strings(args):
