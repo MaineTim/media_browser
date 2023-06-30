@@ -9,7 +9,9 @@ from textual.widgets.data_table import RowDoesNotExist
 
 # Local imports.
 import util as ut
-from widgets import BrowserDataTable, FilenameInput, SearchInput, SearchInputQuote
+from browser_data_table import BrowserDataTable
+from filename_input import FilenameInput
+from search_input import SearchInput, SearchInputQuote
 
 
 class Main(Screen):
@@ -82,8 +84,6 @@ class Main(Screen):
         self.sort_key = self.table.column_keys[0]
         self.current_hi_row_key = self.table.coordinate_to_cell_key((0, 0)).row_key
         self.set_focus(self.table)
-        if self.app.args.translation_list and self.app.args.verbose:
-            self.log(self.app.args.translation_list.keys())
 
     def on_data_table_header_selected(self, event):
         if event.column_key == self.table.column_keys[0]:

@@ -14,7 +14,7 @@ from rich.text import Text
 from textual.coordinate import Coordinate
 from textual.widgets.data_table import CellDoesNotExist, RowDoesNotExist
 
-from widgets import TargetPathInput
+from target_path_input import TargetPathInput
 
 
 def action_file_info(self):
@@ -115,9 +115,6 @@ def exit_error(*error_data):
 
 def get_path(self, index):
     path = self.app.master[index].path
-
-    if self.app.args.translation_list and path in self.app.args.translation_list:
-        path = self.app.args.translation_list[path]
     return os.path.normpath(os.path.join(path, self.app.master[index].name))
 
 

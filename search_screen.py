@@ -5,10 +5,11 @@ from textual.app import ComposeResult
 from textual.coordinate import Coordinate
 from textual.screen import Screen
 from textual.widgets import DataTable, Footer, Header
+from filename_input import FilenameInput
 
 # Local imports.
 import util as ut
-from widgets import BrowserDataTable, FilenameInput
+from browser_data_table import BrowserDataTable
 
 
 class Search(Screen):
@@ -23,17 +24,19 @@ class Search(Screen):
         ("t", "tag", "Tag"),
     ]
 
-    def __init__(self):
+    def __init__(self, entries, duration=0.0):
         super().__init__()
         self.current_hi_row = 0
         self.current_hi_row_key = None
         self.current_row = 0
         self.current_row_key = None
         self.column_keys = []
+        self.search_duration = duration
+        self.entries = entries
         self.is_search = True
         self.platform = platform.system()
         self.p_vlc = None
-        self.screen_rows= {}
+        self.screen_rows = {}
         self.sort_reverse = False
         self.tag_count = 0
         self.vlc_row = None
@@ -70,8 +73,6 @@ class Search(Screen):
         if self.app.search_duration:
             closest_row = ut.closest_row(self)
             self.table.move_cursor(row=closest_row)
-        if self.app.args.translation_list and self.app.args.verbose:
-            self.log(self.app.args.translation_list.keys())
 
     def on_data_table_header_selected(self, event):
         if event.column_key == self.table.column_keys[0]:
@@ -112,23 +113,13 @@ class Search(Screen):
             ("Curr Dur", 10),
         ]
         if self.app.args.verbose:
-            self.log(f"{len(self.app.entries)} records found.")
+            self.log(f"{len(self.entries)} records found.")
         self.table = self.query_one(BrowserDataTable)
         self.table.cursor_type = "row"
         for c in columns:
             self.table.column_keys.append(self.table.add_column(c[0], width=c[1]))
-        self.screen_rows = self.table.build_table(self.app.entries)
+        self.screen_rows = self.table.build_table(self.entries)
         self.filename_input = self.query_one(FilenameInput)
         self.filename_input.action_delete_left_all()
         self.filename_input.insert_text_at_cursor(self.table.row_num_to_master_attr(0, "name"))
         self.table.call_after_refresh(self.finish_mount)
-
-    def on_screen_resume(self):
-        if self.app.new_table:
-            self.app.new_table = False
-            self.table.clear()
-            self.screen_rows = self.table.build_table(self.app.entries)
-            self.filename_input = self.query_one(FilenameInput)
-            self.filename_input.action_delete_left_all()
-            self.filename_input.insert_text_at_cursor(self.table.row_num_to_master_attr(0, "name"))
-            self.table.call_after_refresh(self.finish_mount)

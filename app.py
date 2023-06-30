@@ -3,14 +3,16 @@ import os
 import pickle
 
 # Textual imports.
-from textual.app import App
+from textual.app import App, CSSPathType
+from textual.driver import Driver
 
 # Local imports.
 import media_library as ml
 import util as ut
 from info_screen import Info
 from main_screen import Main
-from search_screen import Search
+
+# from search_screen import Search
 
 
 class Getargs:
@@ -26,13 +28,6 @@ class Getargs:
         self.no_action = args.no_action
         self.file_browser = args.file_browser
         self.name_width = args.name_width if args.name_width else 80
-        if args.translation_list:
-            self.translation_list = {}
-            for i in args.translation_list:
-                path, drive = i.split("=")
-                self.translation_list[path] = drive
-        else:
-            self.translation_list = None
 
     def get_args(self):
         parser = argparse.ArgumentParser()
@@ -41,7 +36,6 @@ class Getargs:
         parser.add_argument("-i", type=str, dest="master_input_path", default="master_filelist")
         parser.add_argument("-o", type=str, dest="master_output_path", required=False)
         parser.add_argument("-n", action="store_true", default=False, dest="no_action")
-        parser.add_argument("-t", action="append", dest="translation_list")
         parser.add_argument("-v", action="store_true", default=False, dest="verbose")
         parser.add_argument("-w", type=int, dest="name_width", default=80)
         args = parser.parse_args()
@@ -73,7 +67,7 @@ class Masterfile:
             self.master.append(item)
 
 
-class Browser(App[None]):
+class Browser(App):
 
     CSS_PATH = "browser.css"
 
@@ -81,19 +75,26 @@ class Browser(App[None]):
 
     SCREENS = {
         "main": Main,
-        "search": Search,
+        #        "search": Search,
         "info": Info,
     }
 
-    def on_mount(self) -> None:
+    def __init__(
+        self, driver_class: type[Driver] | None = None, css_path: CSSPathType | None = None, watch_css: bool = False
+    ):
+        super().__init__(driver_class, css_path, watch_css)
         self.args = Getargs()
         self.changed = []
         self.current_data = None
         self.entries = []
+        self.master = []
+        self.master_instance = None
         self.move_target_path = ""
         self.new_table = False
         self.search_duration = 0.0
         self.yes = False
+
+    def on_mount(self) -> None:
 
         self.master_instance = Masterfile(self.app.args.master_input_path, self.args.file_browser)
         self.master = self.master_instance.master
