@@ -67,7 +67,7 @@ class Main(Screen):
 
     def action_search_quote(self):
         self.filename_input.remove()
-        self.search_input = SearchInputQuote()
+        self.search_input = SearchInputQuote(Search(), self.app.master)
         self.mount(self.search_input, after=self.table)
         self.search_input.insert_text_at_cursor('" .mp4"')
         self.set_focus(self.search_input)

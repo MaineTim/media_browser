@@ -41,6 +41,11 @@ class SearchInputQuote(Input):
 
     BINDINGS = [("escape", "input_cancel", "Cancel")]
 
+    def __init__(self, search_screen, search_entries):
+        super().__init__()
+        self.search_screen = search_screen
+        self.search_entries = search_entries
+
     def action_input_cancel(self):
         self.parent.filename_input = FilenameInput()
         self.mount(self.parent.filename_input, after=self.parent.table)
@@ -53,12 +58,24 @@ class SearchInputQuote(Input):
     async def action_submit(self):
         self.targets = re.findall(r'(?:[^\s,"]|"(?:\\.|[^"])*")+', self.value)
         if self.targets[0][0] == "\\":
-            self.app.search_duration, self.app.entries = ut.search_duration(self, self.app.master, self.targets)
+            self.search_screen.search_duration, self.search_screen.entries = ut.search_duration(
+                self, self.search_entries, self.targets
+            )
         else:
-            self.app.entries = ut.search_strings(self, self.app.master, self.targets)
-        if self.app.entries != []:
-            self.app.push_screen("search")
+            self.search_screen.entries = ut.search_strings(self, self.search_entries, self.targets)
+        if self.search_screen.entries != []:
+            self.app.push_screen(self.search_screen)
         self.action_input_cancel()
+
+    # async def action_submit(self):
+    #     self.targets = re.findall(r'(?:[^\s,"]|"(?:\\.|[^"])*")+', self.value)
+    #     if self.targets[0][0] == "\\":
+    #         self.app.search_duration, self.app.entries = ut.search_duration(self, self.app.master, self.targets)
+    #     else:
+    #         self.app.entries = ut.search_strings(self, self.app.master, self.targets)
+    #     if self.app.entries != []:
+    #         self.app.push_screen("search")
+    #     self.action_input_cancel()
 
     def on_focus_move_cursor(self):
         self.action_cursor_left_word()

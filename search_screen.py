@@ -10,7 +10,7 @@ from textual.widgets import DataTable, Footer, Header
 import util as ut
 from browser_data_table import BrowserDataTable
 from filename_input import FilenameInput
-from search_input import SearchInput
+from search_input import SearchInput, SearchInputQuote
 
 
 class Search(Screen):
@@ -62,6 +62,13 @@ class Search(Screen):
         self.filename_input.remove()
         self.search_input = SearchInput(Search(), self.entries)
         self.mount(self.search_input, after=self.table)
+        self.set_focus(self.search_input)
+
+    def action_search_quote(self):
+        self.filename_input.remove()
+        self.search_input = SearchInputQuote(Search(), self.entries)
+        self.mount(self.search_input, after=self.table)
+        self.search_input.insert_text_at_cursor('" .mp4"')
         self.set_focus(self.search_input)
 
     def action_tag(self):
