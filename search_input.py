@@ -67,16 +67,6 @@ class SearchInputQuote(Input):
             self.app.push_screen(self.search_screen)
         self.action_input_cancel()
 
-    # async def action_submit(self):
-    #     self.targets = re.findall(r'(?:[^\s,"]|"(?:\\.|[^"])*")+', self.value)
-    #     if self.targets[0][0] == "\\":
-    #         self.app.search_duration, self.app.entries = ut.search_duration(self, self.app.master, self.targets)
-    #     else:
-    #         self.app.entries = ut.search_strings(self, self.app.master, self.targets)
-    #     if self.app.entries != []:
-    #         self.app.push_screen("search")
-    #     self.action_input_cancel()
-
     def on_focus_move_cursor(self):
         self.action_cursor_left_word()
         self.action_cursor_left()
