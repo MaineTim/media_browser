@@ -12,6 +12,7 @@ import util as ut
 from browser_data_table import BrowserDataTable
 from filename_input import FilenameInput
 from search_input import SearchInput, SearchInputQuote
+from search_screen import Search
 
 
 class Main(Screen):
@@ -60,7 +61,7 @@ class Main(Screen):
 
     def action_search(self):
         self.filename_input.remove()
-        self.search_input = SearchInput()
+        self.search_input = SearchInput(Search(), self.app.master)
         self.mount(self.search_input, after=self.table)
         self.set_focus(self.search_input)
 

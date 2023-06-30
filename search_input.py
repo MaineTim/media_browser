@@ -4,12 +4,16 @@ from textual.widgets import Input
 
 import util as ut
 from filename_input import FilenameInput
-from search_screen import Search
 
 
 class SearchInput(Input):
 
     BINDINGS = [("escape", "input_cancel", "Cancel")]
+
+    def __init__(self, search_screen, search_entries):
+        super().__init__()
+        self.search_screen = search_screen
+        self.search_entries = search_entries
 
     def action_input_cancel(self):
         self.parent.filename_input = FilenameInput()
@@ -23,12 +27,13 @@ class SearchInput(Input):
     async def action_submit(self):
         self.targets = re.findall(r'(?:[^\s,"]|"(?:\\.|[^"])*")+', self.value)
         if self.targets[0][0] == "\\":
-            search_duration, entries = ut.search_duration(self, self.app.master, self.targets)
+            self.search_screen.search_duration, self.search_screen.entries = ut.search_duration(
+                self, self.search_entries, self.targets
+            )
         else:
-            entries = ut.search_strings(self, self.app.master, self.targets)
-        if entries != []:
-            search_screen = Search(entries)
-            self.app.push_screen(search_screen)
+            self.search_screen.entries = ut.search_strings(self, self.search_entries, self.targets)
+        if self.search_screen.entries != []:
+            self.app.push_screen(self.search_screen)
         self.action_input_cancel()
 
 

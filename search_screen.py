@@ -5,11 +5,12 @@ from textual.app import ComposeResult
 from textual.coordinate import Coordinate
 from textual.screen import Screen
 from textual.widgets import DataTable, Footer, Header
-from filename_input import FilenameInput
 
 # Local imports.
 import util as ut
 from browser_data_table import BrowserDataTable
+from filename_input import FilenameInput
+from search_input import SearchInput
 
 
 class Search(Screen):
@@ -22,22 +23,23 @@ class Search(Screen):
         ("m", "move_file", "Move"),
         ("q", "quit", "Quit"),
         ("t", "tag", "Tag"),
+        ("/", "search", "Search"),
     ]
 
-    def __init__(self, entries, duration=0.0):
+    def __init__(self):
         super().__init__()
         self.current_hi_row = 0
         self.current_hi_row_key = None
         self.current_row = 0
         self.current_row_key = None
         self.column_keys = []
-        self.search_duration = duration
-        self.entries = entries
+        self.search_duration = 0.0
+        self.entries = []
         self.is_search = True
         self.platform = platform.system()
         self.p_vlc = None
         self.screen_rows = {}
-        self.sort_reverse = False
+        self.sort_reverses = False
         self.tag_count = 0
         self.vlc_row = None
 
@@ -55,6 +57,12 @@ class Search(Screen):
 
     def action_run_viewer(self):
         ut.action_run_viewer(self)
+
+    def action_search(self):
+        self.filename_input.remove()
+        self.search_input = SearchInput(Search(), self.entries)
+        self.mount(self.search_input, after=self.table)
+        self.set_focus(self.search_input)
 
     def action_tag(self):
         ut.action_tag(self)
