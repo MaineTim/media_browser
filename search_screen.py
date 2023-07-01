@@ -1,10 +1,13 @@
 import platform
 
+from rich.text import Text
+
 # Textual imports.
 from textual.app import ComposeResult
 from textual.coordinate import Coordinate
 from textual.screen import Screen
 from textual.widgets import DataTable, Footer, Header
+from textual.widgets.data_table import RowDoesNotExist
 
 # Local imports.
 import util as ut
@@ -138,3 +141,15 @@ class Search(Screen):
         self.filename_input.action_delete_left_all()
         self.filename_input.insert_text_at_cursor(self.table.row_num_to_master_attr(0, "name"))
         self.table.call_after_refresh(self.finish_mount)
+
+    def on_screen_resume(self):
+        if self.app.changed != []:
+            for index, change, data in self.app.changed:
+                match change:
+                    case "D":
+                        try:
+                            self.table.remove_row(self.table.index_to_row_key(index))
+                        except RowDoesNotExist:
+                            ...
+                    case "R":
+                        self.table.update_cell(self.table.index_to_row_key(index), self.table.column_keys[0], Text(data))

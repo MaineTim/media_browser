@@ -1,5 +1,7 @@
 import platform
 
+from rich.text import Text
+
 # Textual imports.
 from textual.app import ComposeResult
 from textual.coordinate import Coordinate
@@ -148,7 +150,7 @@ class Main(Screen):
                         except RowDoesNotExist:
                             ...
                     case "R":
-                        self.table.update_cell(self.table.index_to_row_key(index), self.table.column_keys[0], data)
+                        self.table.update_cell(self.table.index_to_row_key(index), self.table.column_keys[0], Text(data))
             self.app.changed = []
 
     def use_name_sort(self):
