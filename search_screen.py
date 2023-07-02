@@ -78,8 +78,19 @@ class Search(Screen):
         ut.action_tag(self)
 
     def compose(self) -> ComposeResult:
+        columns = [
+            ("Name", self.app.args.name_width),
+            ("Orig Size", 10),
+            ("Curr Size", 10),
+            ("Date", 10),
+            ("Backups", 2),
+            ("Orig Dur", 10),
+            ("Orig Min", 10),
+            ("Curr Dur", 10),
+        ]
+        self.table = BrowserDataTable(columns, self.entries, classes="datatable")
         yield Header()
-        yield BrowserDataTable(classes="datatable")
+        yield self.table
         yield FilenameInput()
         yield Footer()
 
@@ -120,23 +131,6 @@ class Search(Screen):
         self.filename_input.insert_text_at_cursor(self.table.row_num_to_master_attr(event.cursor_row, "name"))
 
     def on_mount(self) -> None:
-        columns = [
-            ("Name", self.app.args.name_width),
-            ("Orig Size", 10),
-            ("Curr Size", 10),
-            ("Date", 10),
-            ("Backups", 2),
-            ("Orig Dur", 10),
-            ("Orig Min", 10),
-            ("Curr Dur", 10),
-        ]
-        if self.app.args.verbose:
-            self.log(f"{len(self.entries)} records found.")
-        self.table = self.query_one(BrowserDataTable)
-        self.table.cursor_type = "row"
-        for c in columns:
-            self.table.column_keys.append(self.table.add_column(c[0], width=c[1]))
-        self.screen_rows = self.table.build_table(self.entries)
         self.filename_input = self.query_one(FilenameInput)
         self.filename_input.action_delete_left_all()
         self.filename_input.insert_text_at_cursor(self.table.row_num_to_master_attr(0, "name"))
@@ -152,4 +146,6 @@ class Search(Screen):
                         except RowDoesNotExist:
                             ...
                     case "R":
-                        self.table.update_cell(self.table.index_to_row_key(index), self.table.column_keys[0], Text(data))
+                        self.table.update_cell(
+                            self.table.index_to_row_key(index), self.table.column_keys[0], Text(data)
+                        )

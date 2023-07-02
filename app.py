@@ -87,17 +87,16 @@ class Browser(App):
         self.changed = []
         self.current_data = None
         self.entries = []
-        self.master = []
-        self.master_instance = None
         self.move_target_path = ""
         self.new_table = False
         self.search_duration = 0.0
         self.yes = False
 
-    def on_mount(self) -> None:
-
         self.master_instance = Masterfile(self.app.args.master_input_path, self.args.file_browser)
         self.master = self.master_instance.master
+
+    def on_mount(self) -> None:
+
         self.push_screen("main")
 
     def master_refresh(self):

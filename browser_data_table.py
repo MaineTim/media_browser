@@ -12,21 +12,27 @@ class BrowserRow:
 
 
 class BrowserDataTable(DataTable):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, columns, entries, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.column_keys = []
         self.enter_pressed = False
-        self.table_rows = {}
+        self.table_rows = self.build_table(columns, entries)
 
     def add_row(self, *args, **kwargs):
         return super().add_row(Text(args[0]), *args[1:], **kwargs)
 
-    def build_table(self, entries):
-        self.table_rows = {}
+    def build_table(self, columns, entries):
+        if self.app.args.verbose:
+            self.log(f"{len(self.entries)} records found.")
+        self.cursor_type = "row"
+        for c in columns:
+            self.column_keys.append(self.add_column(c[0], width=c[1]))
+
+        table_rows = {}
         for item in entries:
             if "deleted" not in item.data.keys():
                 minute, sec = divmod(float(item.original_duration), 60)
-                self.table_rows[
+                table_rows[
                     self.add_row(
                         item.name,
                         item.original_size,
@@ -38,7 +44,7 @@ class BrowserDataTable(DataTable):
                         time.strftime("%H:%M:%S", time.gmtime(float(item.current_duration))),
                     )
                 ] = BrowserRow(item.data["index"], tagged=False)
-        return self.table_rows
+        return table_rows
 
     def cursor_row_key(self):
         row_key, _ = self.coordinate_to_cell_key(self.cursor_coordinate)

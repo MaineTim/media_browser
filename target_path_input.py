@@ -2,7 +2,6 @@ import os
 
 # Textual imports.
 from textual.containers import Grid
-from textual.message import Message
 from textual.screen import Screen
 from textual.widgets import Button, Input, Static
 
