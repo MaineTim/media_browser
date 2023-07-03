@@ -27,7 +27,23 @@ class BrowserDataTable(DataTable):
         self.cursor_type = "row"
         for c in columns:
             self.column_keys.append(self.add_column(c[0], width=c[1]))
+        return self.populate_rows(entries)
 
+    def cursor_row_key(self):
+        row_key, _ = self.coordinate_to_cell_key(self.cursor_coordinate)
+        return row_key
+
+    def index_to_row_key(self, index):
+        for key, values in self.table_rows.items():
+            if values.index == index:
+                return key
+        return None
+
+    def on_key(self, event):
+        if event.key == "enter":
+            self.enter_pressed = True
+
+    def populate_rows(self, entries):
         table_rows = {}
         for item in entries:
             if "deleted" not in item.data.keys():
@@ -45,20 +61,6 @@ class BrowserDataTable(DataTable):
                     )
                 ] = BrowserRow(item.data["index"], tagged=False)
         return table_rows
-
-    def cursor_row_key(self):
-        row_key, _ = self.coordinate_to_cell_key(self.cursor_coordinate)
-        return row_key
-
-    def index_to_row_key(self, index):
-        for key, values in self.table_rows.items():
-            if values.index == index:
-                return key
-        return None
-
-    def on_key(self, event):
-        if event.key == "enter":
-            self.enter_pressed = True
 
     def row_key_to_master_attr(self, row_key, attrstr):
         attr = getattr(self.app.master[self.table_rows[row_key].index], attrstr)

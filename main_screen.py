@@ -150,7 +150,7 @@ class Main(Screen):
 
     def use_name_sort(self):
         self.table.clear()
-        self.screen_rows = self.table.build_table(self.app.master)
+        self.table.table_rows = self.table.populate_rows(self.app.master)
         self.filename_input = self.query_one(FilenameInput)
         self.filename_input.action_delete_left_all()
         self.filename_input.insert_text_at_cursor(self.table.row_num_to_master_attr(0, "name"))
