@@ -99,7 +99,7 @@ class Search(Screen):
         self.table.sort(self.sort_key)
         self.current_hi_row_key = self.table.coordinate_to_cell_key((0, 0)).row_key
         self.set_focus(self.table)
-        if self.app.search_duration:
+        if self.search_duration:
             closest_row = ut.closest_row(self)
             self.table.move_cursor(row=closest_row)
 
