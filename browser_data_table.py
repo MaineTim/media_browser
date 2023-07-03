@@ -23,7 +23,7 @@ class BrowserDataTable(DataTable):
 
     def build_table(self, columns, entries):
         if self.app.args.verbose:
-            self.log(f"{len(self.entries)} records found.")
+            self.log(f"{len(entries)} records found.")
         self.cursor_type = "row"
         for c in columns:
             self.column_keys.append(self.add_column(c[0], width=c[1]))
