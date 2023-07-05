@@ -75,7 +75,6 @@ class Browser(App):
 
     SCREENS = {
         "main": Main,
-        #        "search": Search,
         "info": Info,
     }
 

@@ -13,11 +13,11 @@ class FilenameInput(Input):
 
     def action_input_cancel(self):
         self.value = ""
-        self.insert_text_at_cursor(self.parent.table.row_num_to_master_attr(self.parent.current_hi_row, "name"))
+        self.insert_text_at_cursor(self.parent.table.row_num_to_master_attr(self.parent.table.cursor_row, "name"))
         self.parent.set_focus(self.parent.table)
 
     async def action_submit(self):
-        self.master_row = self.parent.table.row_num_to_master_index(self.parent.current_hi_row)
+        self.master_row = self.parent.table.row_num_to_master_index(self.parent.table.cursor_row)
         self.current_data = self.app.master[self.master_row]
         self.current_file = os.path.join(self.current_data.path, self.current_data.name)
         self.new_file = os.path.join(self.current_data.path, self.value)

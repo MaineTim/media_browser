@@ -19,7 +19,7 @@ class SearchInput(Input):
         self.parent.filename_input = FilenameInput()
         self.mount(self.parent.filename_input, after=self.parent.table)
         self.parent.filename_input.insert_text_at_cursor(
-            self.parent.table.row_num_to_master_attr(self.parent.current_hi_row, "name")
+            self.parent.table.row_num_to_master_attr(self.parent.table.cursor_row, "name")
         )
         self.parent.set_focus(self.parent.table)
         self.remove()
@@ -50,7 +50,7 @@ class SearchInputQuote(Input):
         self.parent.filename_input = FilenameInput()
         self.mount(self.parent.filename_input, after=self.parent.table)
         self.parent.filename_input.insert_text_at_cursor(
-            self.parent.table.row_num_to_master_attr(self.parent.current_hi_row, "name")
+            self.parent.table.row_num_to_master_attr(self.parent.table.cursor_row, "name")
         )
         self.parent.set_focus(self.parent.table)
         self.remove()

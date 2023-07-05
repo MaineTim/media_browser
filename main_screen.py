@@ -4,7 +4,6 @@ from rich.text import Text
 
 # Textual imports.
 from textual.app import ComposeResult
-from textual.coordinate import Coordinate
 from textual.screen import Screen
 from textual.widgets import DataTable, Footer, Header
 from textual.widgets.data_table import RowDoesNotExist
@@ -33,10 +32,6 @@ class Main(Screen):
 
     def __init__(self):
         super().__init__()
-        self.current_hi_row = 0
-        self.current_hi_row_key = None
-        self.current_row = 0
-        self.current_row_key = None
         self.platform = platform.system()
         self.p_vlc = None
         self.sort_reverse = False
@@ -94,10 +89,10 @@ class Main(Screen):
 
     def finish_mount(self):
         self.sort_key = self.table.column_keys[0]
-        self.current_hi_row_key = self.table.coordinate_to_cell_key((0, 0)).row_key
         self.set_focus(self.table)
 
     def on_data_table_header_selected(self, event):
+        key = self.table.cursor_row_key()
         if event.column_key == self.table.column_keys[0]:
             self.use_name_sort()
             self.sort_key = self.table.column_keys[0]
@@ -108,12 +103,9 @@ class Main(Screen):
                 self.sort_reverse = False
             self.table.sort(event.column_key, reverse=self.sort_reverse)
             self.sort_key = event.column_key
-        coord = Coordinate(row=self.table.cursor_row, column=0)
-        self.current_hi_row_key = self.table.coordinate_to_cell_key(coord).row_key
+        self.table.move_cursor(row=self.table.row_key_to_row_num(key))
 
     def on_data_table_row_highlighted(self, event: DataTable.CellSelected):
-        self.current_hi_row = event.cursor_row
-        self.current_hi_row_key = event.row_key
         self.filename_input.action_delete_left_all()
         self.filename_input.insert_text_at_cursor(self.table.row_num_to_master_attr(event.cursor_row, "name"))
 
@@ -121,15 +113,9 @@ class Main(Screen):
         if self.table.enter_pressed:
             self.table.enter_pressed = False
             self.set_focus(self.filename_input)
-        self.current_row = event.cursor_row
-        self.current_row_key = event.row_key
-        self.filename_input.action_delete_left_all()
-        self.filename_input.insert_text_at_cursor(self.table.row_num_to_master_attr(event.cursor_row, "name"))
 
     def on_mount(self) -> None:
         self.filename_input = self.query_one(FilenameInput)
-        self.filename_input.action_delete_left_all()
-        self.filename_input.insert_text_at_cursor(self.table.row_num_to_master_attr(0, "name"))
         self.table.call_after_refresh(self.finish_mount)
 
     def on_screen_resume(self):

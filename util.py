@@ -11,15 +11,14 @@ from rich.style import Style
 from rich.text import Text
 
 # Textual imports
-from textual.coordinate import Coordinate
-from textual.widgets.data_table import CellDoesNotExist, RowDoesNotExist
+from textual.widgets.data_table import RowDoesNotExist
 
 from target_path_input import TargetPathInput
 
 
 def action_file_info(self):
     try:
-        master_row = self.table.row_num_to_master_index(self.current_hi_row)
+        master_row = self.table.row_num_to_master_index(self.table.cursor_row)
     except RowDoesNotExist:
         return
     self.app.current_data = self.app.master[master_row]
@@ -38,27 +37,29 @@ def action_move_file(self):
 def action_run_viewer(self):
     if self.p_vlc:
         kill_vlc(self)
-    if self.vlc_row == self.current_hi_row:
+    if self.vlc_row == self.table.cursor_row:
         self.vlc_row = None
         return
     self.p_vlc = subprocess.Popen(
-        build_command("vlc", get_path(self, self.table.row_num_to_master_index(self.current_hi_row))),
+        build_command("vlc", get_path(self, self.table.row_num_to_master_index(self.table.cursor_row))),
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
     )
-    self.vlc_row = self.current_hi_row
+    self.vlc_row = self.table.cursor_row
 
 
 def action_tag(self):
-    self.table.table_rows[self.current_hi_row_key].tagged = not self.table.table_rows[self.current_hi_row_key].tagged
-    if self.table.table_rows[self.current_hi_row_key].tagged:
-        new_cell = Text(self.app.master[self.table.table_rows[self.current_hi_row_key].index].name)
+    self.table.table_rows[self.table.cursor_row_key()].tagged = not self.table.table_rows[
+        self.table.cursor_row_key()
+    ].tagged
+    if self.table.table_rows[self.table.cursor_row_key()].tagged:
+        new_cell = Text(self.app.master[self.table.table_rows[self.table.cursor_row_key()].index].name)
         new_cell.stylize(Style(bgcolor="yellow"))
-        self.table.update_cell_at((self.current_hi_row, 0), new_cell)
+        self.table.update_cell_at((self.table.cursor_row, 0), new_cell)
         self.tag_count += 1
     else:
-        new_cell = Text(self.app.master[self.table.table_rows[self.current_hi_row_key].index].name)
-        self.table.update_cell_at((self.current_hi_row, 0), new_cell)
+        new_cell = Text(self.app.master[self.table.table_rows[self.table.cursor_row_key()].index].name)
+        self.table.update_cell_at((self.table.cursor_row, 0), new_cell)
         self.tag_count -= 1
 
 
@@ -82,7 +83,7 @@ def closest_row(self):
 
 def delete_file(self):
     try:
-        master_index = self.table.row_num_to_master_index(self.current_hi_row)
+        master_index = self.table.row_num_to_master_index(self.table.cursor_row)
     except RowDoesNotExist:
         return
     current_data = self.app.master[master_index]
@@ -96,12 +97,7 @@ def delete_file(self):
         self.app.master[master_index].data["deleted"] = True
         self.app.changed.append((master_index, "D", ""))
     self.set_focus(self.table)
-    self.table.remove_row(self.current_hi_row_key)
-    coord = Coordinate(row=self.table.cursor_row, column=0)
-    try:
-        self.current_hi_row_key = self.table.coordinate_to_cell_key(coord).row_key
-    except CellDoesNotExist:
-        ...
+    self.table.remove_row(self.table.cursor_row_key())
 
 
 def exit_error(*error_data):
@@ -186,7 +182,7 @@ def rename_file(self):
     if not self.app.args.no_action:
         shutil.move(self.current_file, self.new_file)
     self.parent.set_focus(self.parent.table)
-    self.parent.table.update_cell_at((self.parent.current_row, 0), os.path.basename(self.new_file))
+    self.parent.table.update_cell_at((self.parent.table.cursor_row, 0), os.path.basename(self.new_file))
     self.app.master[self.master_row].name = os.path.basename(self.new_file)
     self.app.changed.append((self.master_row, "R", os.path.basename(self.new_file)))
 
