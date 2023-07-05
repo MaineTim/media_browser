@@ -37,7 +37,6 @@ class Main(Screen):
         self.current_hi_row_key = None
         self.current_row = 0
         self.current_row_key = None
-        self.is_search = False
         self.platform = platform.system()
         self.p_vlc = None
         self.sort_reverse = False

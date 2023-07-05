@@ -35,13 +35,10 @@ class Search(Screen):
         self.current_hi_row_key = None
         self.current_row = 0
         self.current_row_key = None
-        self.column_keys = []
         self.search_duration = 0.0
         self.entries = []
-        self.is_search = True
         self.platform = platform.system()
         self.p_vlc = None
-        self.screen_rows = {}
         self.sort_reverses = False
         self.tag_count = 0
         self.vlc_row = None
