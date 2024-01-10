@@ -1,8 +1,8 @@
 import os
 
 from textual.containers import Grid
-from textual.screen import Screen
-from textual.widgets import Button, Input, Static
+from textual.screen import ModalScreen
+from textual.widgets import Button, Input, Label, Static
 
 import util as ut
 
@@ -22,8 +22,7 @@ class FilenameInput(Input):
         self.current_file = os.path.join(self.current_data.path, self.current_data.name)
         self.new_file = os.path.join(self.current_data.path, self.value)
         if os.path.exists(self.new_file):
-            self.app.install_screen(RenameYesNoScreen(self), "rename")
-            self.app.push_screen("rename")
+            self.app.push_screen(RenameYesNoScreen(self))
         else:
             ut.rename_file(self)
             self.action_input_cancel()
@@ -36,14 +35,14 @@ class FilenameInput(Input):
         self.call_after_refresh(self.on_focus_move_cursor)
 
 
-class RenameYesNoScreen(Screen):
+class RenameYesNoScreen(ModalScreen):
     def __init__(self, fi):
         super().__init__()
         self.fi = fi
 
     def compose(self):
         yield Grid(
-            Static(f"{self.fi.new_file} already exists, overwrite it?", id="question"),
+            Label(f"{self.fi.new_file} already exists, overwrite it?", id="question"),
             Button("Yes", variant="error", id="Yes"),
             Button("No", variant="primary", id="No"),
             id="dialog",
@@ -55,4 +54,3 @@ class RenameYesNoScreen(Screen):
         if event.button.id == "Yes":
             ut.rename_file(self.fi)
         self.app.pop_screen()
-        self.app.uninstall_screen("rename")

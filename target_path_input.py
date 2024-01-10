@@ -2,7 +2,7 @@ import os
 
 # Textual imports.
 from textual.containers import Grid
-from textual.screen import Screen
+from textual.screen import ModalScreen
 from textual.widgets import Button, Input, Static
 
 # Local imports.
@@ -39,14 +39,13 @@ class TargetPathInput(Input):
             self.current_file = os.path.join(current_data.path, current_data.name)
             self.new_file = os.path.join(self.value, current_data.name)
             if os.path.exists(self.new_file):
-                self.app.install_screen(TargetPathYesNoScreen(self), "target_path")
-                self.app.push_screen("target_path")
+                self.app.push_screen(TargetPathYesNoScreen(self))
             else:
                 ut.move_file(self)
         self.action_input_cancel()
 
 
-class TargetPathYesNoScreen(Screen):
+class TargetPathYesNoScreen(ModalScreen):
     def __init__(self, fi):
         super().__init__()
         self.fi = fi
@@ -65,4 +64,3 @@ class TargetPathYesNoScreen(Screen):
         if event.button.id == "Yes":
             ut.rename_file(self.fi)
         self.app.pop_screen()
-        self.app.uninstall_screen("target_path")
