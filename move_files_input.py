@@ -7,18 +7,18 @@ from textual.widgets import Button, Input, Static
 
 # Local imports.
 import util as ut
-from filename_input import FilenameInput
+from rename_file_input import RenameFileInput
 
 
-class TargetPathInput(Input):
+class MoveFilesInput(Input):
 
     BINDINGS = [("escape", "input_cancel", "Cancel")]
 
     def action_input_cancel(self):
         self.value = ""
-        self.parent.filename_input = FilenameInput()
-        self.mount(self.parent.filename_input, after=self.parent.table)
-        self.parent.filename_input.insert_text_at_cursor(
+        self.parent.rename_file_input = RenameFileInput()
+        self.mount(self.parent.rename_file_input, after=self.parent.table)
+        self.parent.rename_file_input.insert_text_at_cursor(
             self.parent.table.row_num_to_master_attr(self.parent.table.cursor_row, "name")
         )
         self.parent.set_focus(self.parent.table)
@@ -39,13 +39,13 @@ class TargetPathInput(Input):
             self.current_file = os.path.join(current_data.path, current_data.name)
             self.new_file = os.path.join(self.value, current_data.name)
             if os.path.exists(self.new_file):
-                self.app.push_screen(TargetPathYesNoScreen(self))
+                self.app.push_screen(MoveFilesYesNoScreen(self))
             else:
                 ut.move_file(self)
         self.action_input_cancel()
 
 
-class TargetPathYesNoScreen(ModalScreen):
+class MoveFilesYesNoScreen(ModalScreen):
     def __init__(self, fi):
         super().__init__()
         self.fi = fi

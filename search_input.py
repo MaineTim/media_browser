@@ -3,7 +3,7 @@ import re
 from textual.widgets import Input
 
 import util as ut
-from filename_input import FilenameInput
+from rename_file_input import RenameFileInput
 
 
 class SearchInput(Input):
@@ -16,9 +16,9 @@ class SearchInput(Input):
         self.search_entries = search_entries
 
     def action_input_cancel(self):
-        self.parent.filename_input = FilenameInput()
-        self.mount(self.parent.filename_input, after=self.parent.table)
-        self.parent.filename_input.insert_text_at_cursor(
+        self.parent.rename_file_input = RenameFileInput()
+        self.mount(self.parent.rename_file_input, after=self.parent.table)
+        self.parent.rename_file_input.insert_text_at_cursor(
             self.parent.table.row_num_to_master_attr(self.parent.table.cursor_row, "name")
         )
         self.parent.set_focus(self.parent.table)
@@ -47,9 +47,9 @@ class SearchInputQuote(Input):
         self.search_entries = search_entries
 
     def action_input_cancel(self):
-        self.parent.filename_input = FilenameInput()
-        self.mount(self.parent.filename_input, after=self.parent.table)
-        self.parent.filename_input.insert_text_at_cursor(
+        self.parent.rename_file_input = RenameFileInput()
+        self.mount(self.parent.rename_file_input, after=self.parent.table)
+        self.parent.rename_file_input.insert_text_at_cursor(
             self.parent.table.row_num_to_master_attr(self.parent.table.cursor_row, "name")
         )
         self.parent.set_focus(self.parent.table)

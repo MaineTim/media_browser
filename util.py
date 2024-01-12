@@ -13,7 +13,7 @@ from rich.text import Text
 # Textual imports
 from textual.widgets.data_table import RowDoesNotExist
 
-from target_path_input import TargetPathInput
+from move_files_input import MoveFilesInput
 
 
 def action_file_info(self):
@@ -26,8 +26,8 @@ def action_file_info(self):
 
 
 def action_move_file(self):
-    self.filename_input.remove()
-    self.move_target_input = TargetPathInput()
+    self.rename_file_input.remove()
+    self.move_target_input = MoveFilesInput()
     self.mount(self.move_target_input, after=self.table)
     self.move_target_input.action_delete_left_all()
     self.move_target_input.insert_text_at_cursor(self.app.move_target_path)

@@ -7,7 +7,7 @@ from textual.widgets import Button, Input, Label, Static
 import util as ut
 
 
-class FilenameInput(Input):
+class RenameFileInput(Input):
 
     BINDINGS = [("escape", "input_cancel", "Cancel")]
 
