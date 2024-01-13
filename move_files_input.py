@@ -37,6 +37,7 @@ class MoveFilesInput(Input):
         for index in indexes:
             current_data = self.app.master[index]
             self.current_file = os.path.join(current_data.path, current_data.name)
+            self.current_file_utime = current_data.date.timestamp()
             self.new_file = os.path.join(self.value, current_data.name)
             if os.path.exists(self.new_file):
                 self.app.push_screen(MoveFilesYesNoScreen(self))

@@ -133,6 +133,7 @@ def move_file(self):
         self.log(f"{self.current_file} -> {self.new_file}")
     if not self.app.args.no_action:
         shutil.move(self.current_file, self.new_file)
+        os.utime(self.new_file, (self.current_file_utime, self.current_file_utime))
 
 
 def parse_target_strings(args):
