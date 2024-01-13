@@ -14,6 +14,7 @@ from rich.text import Text
 from textual.widgets.data_table import RowDoesNotExist
 
 from move_files_input import MoveFilesInput
+from write_masterfile_input import WriteMasterfileInput
 
 
 def action_file_info(self):
@@ -61,6 +62,15 @@ def action_tag(self):
         new_cell = Text(self.app.master[self.table.table_rows[self.table.cursor_row_key()].index].name)
         self.table.update_cell_at((self.table.cursor_row, 0), new_cell)
         self.tag_count -= 1
+
+
+def action_write_masterfile(self):
+    self.rename_file_input.remove()
+    self.write_masterfile_input = WriteMasterfileInput()
+    self.mount(self.write_masterfile_input, after=self.table)
+    self.write_masterfile_input.action_delete_left_all()
+    self.write_masterfile_input.insert_text_at_cursor(self.app.args.master_input_path)
+    self.set_focus(self.write_masterfile_input)
 
 
 def build_command(*args):

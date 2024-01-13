@@ -4,6 +4,7 @@ from rich.text import Text
 
 # Textual imports.
 from textual.app import ComposeResult
+from textual.binding import Binding
 from textual.screen import Screen
 from textual.widgets import DataTable, Footer, Header
 from textual.widgets.data_table import RowDoesNotExist
@@ -18,14 +19,15 @@ from search_input import SearchInput, SearchInputQuote
 class Search(Screen):
 
     BINDINGS = [
-        ("escape", "return_to_main", "Main Screen"),
-        ("space", "run_viewer", "View"),
-        ("d", "delete_file", "Del"),
-        ("i", "file_info", "Info"),
-        ("m", "move_file", "Move"),
-        ("q", "quit", "Quit"),
-        ("t", "tag", "Tag"),
-        ("/", "search", "Search"),
+        Binding("escape", "return_to_main", "Main Screen"),
+        Binding("space", "run_viewer", "View"),
+        Binding("d", "delete_file", "Del"),
+        Binding("i", "file_info", "Info"),
+        Binding("m", "move_file", "Move"),
+        Binding("q", "quit", "Quit"),
+        Binding("t", "tag", "Tag"),
+        Binding("/", "search", "Search"),
+        Binding("ctrl+w", "write_masterfile", "Write Masterfile", show=False),       
     ]
 
     def __init__(self):
@@ -68,6 +70,9 @@ class Search(Screen):
 
     def action_tag(self):
         ut.action_tag(self)
+
+    def action_write_masterfile(self):
+        ut.action_write_masterfile(self)
 
     def compose(self) -> ComposeResult:
         columns = [
