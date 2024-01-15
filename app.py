@@ -86,6 +86,7 @@ class Browser(App):
         self.changed = []
         self.current_data = None
         self.move_target_path = ""
+        self.rename_tagged_options = ""
 
         self.master_instance = Masterfile(self.app.args.master_input_path, self.args.file_browser)
         self.master = self.master_instance.master

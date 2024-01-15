@@ -63,5 +63,5 @@ class MoveFilesYesNoScreen(ModalScreen):
         if self.app.args.verbose:
             self.log(event.button.id)
         if event.button.id == "Yes":
-            ut.rename_file(self.fi)
+            ut.move_file(self.fi)
         self.app.pop_screen()

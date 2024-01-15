@@ -14,6 +14,7 @@ from rich.text import Text
 from textual.widgets.data_table import RowDoesNotExist
 
 from move_files_input import MoveFilesInput
+from rename_tagged_files_input import RenameTaggedFilesInput
 from write_masterfile_input import WriteMasterfileInput
 
 
@@ -62,6 +63,15 @@ def action_tag(self):
         new_cell = Text(self.app.master[self.table.table_rows[self.table.cursor_row_key()].index].name)
         self.table.update_cell_at((self.table.cursor_row, 0), new_cell)
         self.tag_count -= 1
+
+
+def action_tagged_rename(self):
+    self.rename_file_input.remove()
+    self.rename_tagged_files_input = RenameTaggedFilesInput()
+    self.mount(self.rename_tagged_files_input, after=self.table)
+    self.rename_tagged_files_input.action_delete_left_all()
+    self.rename_tagged_files_input.insert_text_at_cursor(self.app.rename_tagged_options)
+    self.set_focus(self.rename_tagged_files_input)
 
 
 def action_write_masterfile(self):

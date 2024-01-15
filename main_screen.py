@@ -26,8 +26,9 @@ class Main(Screen):
         Binding("i", "file_info", "Info"),
         Binding("m", "move_file", "Move"),
         Binding("q", "quit", "Quit"),
-        Binding("r", "refresh", "Refresh"),
+        Binding("r", "tagged_rename", "taggedRename"),
         Binding("t", "tag", "Tag"),
+        Binding("u", "update", "Update"),
         Binding("/", "search", "Search"),
         Binding("ctrl+w", "write_masterfile", "Write Masterfile", show=True),
     ]
@@ -71,6 +72,9 @@ class Main(Screen):
 
     def action_tag(self):
         ut.action_tag(self)
+
+    def action_tagged_rename(self):
+        ut.action_tagged_rename(self)
 
     def action_write_masterfile(self):
         ut.action_write_masterfile(self)
