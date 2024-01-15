@@ -63,6 +63,8 @@ def action_tag(self):
         new_cell = Text(self.app.master[self.table.table_rows[self.table.cursor_row_key()].index].name)
         self.table.update_cell_at((self.table.cursor_row, 0), new_cell)
         self.tag_count -= 1
+    new_row = (self.table.cursor_row + 1) if self.table.cursor_row < (self.table.row_count - 1) else self.table.row_count - 1
+    self.table.move_cursor(row=new_row)
 
 
 def action_tagged_rename(self):
