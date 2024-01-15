@@ -50,7 +50,7 @@ class Main(Screen):
     def action_move_file(self):
         ut.action_move_file(self)
 
-    def action_refresh(self):
+    def action_update(self):
         self.app.master_refresh()
         self.use_name_sort()
 
