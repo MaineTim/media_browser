@@ -30,7 +30,7 @@ class Main(Screen):
         Binding("t", "tag", "Tag"),
         Binding("u", "update", "Update"),
         Binding("/", "search", "Search"),
-        Binding("ctrl+w", "write_masterfile", "Write Masterfile", show=True),
+        Binding("ctrl+w", "write_masterfile", "Write Masterfile", show=False),
     ]
 
     def __init__(self):
