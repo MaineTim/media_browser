@@ -30,6 +30,7 @@ class Main(Screen):
         Binding("t", "tag", "Tag"),
         Binding("u", "update", "Update"),
         Binding("/", "search", "Search"),
+        Binding("ctrl+t", "untag_all", "Untag All", show=False),
         Binding("ctrl+w", "write_masterfile", "Write Masterfile", show=False),
     ]
 
@@ -75,6 +76,14 @@ class Main(Screen):
 
     def action_tagged_rename(self):
         ut.action_tagged_rename(self)
+
+    def action_untag_all(self):
+        saved_row = self.table.cursor_row
+        if self.tag_count > 0:
+            for key in (key for key in self.table.table_rows.keys() if self.table.table_rows[key].tagged):
+                self.table.move_cursor(row=self.table.row_key_to_row_num(key))
+                ut.action_tag(self)
+        self.table.move_cursor(row=saved_row)
 
     def action_write_masterfile(self):
         ut.action_write_masterfile(self)

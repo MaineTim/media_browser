@@ -66,7 +66,7 @@ class RenameTaggedFilesInput(Input):
                     )
                     self.app.changed.append((index, "R", self.app.master[index].name))
                     self.screen_parent.table.table_rows[self.screen_parent.table.index_to_row_key(index)].tagged = False
-                    
+
 
 class RenameTaggedFilesYesNoScreen(ModalScreen):
     def compose(self):
