@@ -115,14 +115,19 @@ class Search(Screen):
             self.table.move_cursor(row=closest_row)
 
     def on_data_table_header_selected(self, event):
+
+        def richtext_key(key):
+            if type(key) == Text:
+                return str(key)
+            else:
+                 return key
+
         key = self.table.cursor_row_key()
-        if event.column_key == self.table.column_keys[0]:
-            return
         if self.sort_key == event.column_key:
             self.sort_reverse = False if self.sort_reverse else True
         else:
             self.sort_reverse = False
-        self.table.sort(event.column_key, reverse=self.sort_reverse)
+        self.table.sort(event.column_key, key=richtext_key, reverse=self.sort_reverse)
         self.sort_key = event.column_key
         self.table.move_cursor(row=self.table.row_key_to_row_num(key))
 

@@ -110,17 +110,20 @@ class Main(Screen):
         self.set_focus(self.table)
 
     def on_data_table_header_selected(self, event):
-        key = self.table.cursor_row_key()
-        if event.column_key == self.table.column_keys[0]:
-            self.use_name_sort()
-            self.sort_key = self.table.column_keys[0]
-        else:
-            if self.sort_key == event.column_key:
-                self.sort_reverse = False if self.sort_reverse else True
+
+        def richtext_key(key):
+            if type(key) == Text:
+                return str(key)
             else:
-                self.sort_reverse = False
-            self.table.sort(event.column_key, reverse=self.sort_reverse)
-            self.sort_key = event.column_key
+                 return key
+
+        key = self.table.cursor_row_key()
+        if self.sort_key == event.column_key:
+            self.sort_reverse = False if self.sort_reverse else True
+        else:
+            self.sort_reverse = False
+        self.table.sort(event.column_key, key=richtext_key, reverse=self.sort_reverse)
+        self.sort_key = event.column_key
         self.table.move_cursor(row=self.table.row_key_to_row_num(key))
 
     def on_data_table_row_highlighted(self, event: DataTable.CellSelected):
