@@ -7,7 +7,7 @@ from textual.app import ComposeResult
 from textual.binding import Binding
 from textual.screen import Screen
 from textual.widgets import DataTable, Footer, Header
-from textual.widgets.data_table import RowDoesNotExist
+from textual.widgets.data_table import RowDoesNotExist, CellDoesNotExist
 
 # Local imports.
 import util as ut
@@ -154,6 +154,9 @@ class Search(Screen):
                         except RowDoesNotExist:
                             ...
                     case "R":
-                        self.table.update_cell(
-                            self.table.index_to_row_key(index), self.table.column_keys[0], Text(data)
-                        )
+                        try:
+                            self.table.update_cell(
+                                self.table.index_to_row_key(index), self.table.column_keys[0], Text(data)
+                            )
+                        except CellDoesNotExist:
+                            ...

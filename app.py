@@ -18,16 +18,16 @@ from main_screen import Main
 class Getargs:
     def __init__(self):
         args = self.get_args()
-        self.write_csv = args.write_csv
+        self.file_browser = args.file_browser
         self.master_input_path = args.master_input_path
         if not args.master_output_path:
             self.master_output_path = args.master_input_path
         else:
             self.master_output_path = args.master_output_path
-        self.verbose = args.verbose
-        self.no_action = args.no_action
-        self.file_browser = args.file_browser
         self.name_width = args.name_width if args.name_width else 80
+        self.no_action = args.no_action
+        self.verbose = args.verbose
+        self.write_csv = args.write_csv
 
     def get_args(self):
         parser = argparse.ArgumentParser()
@@ -44,8 +44,8 @@ class Getargs:
 
 class Masterfile:
     def __init__(self, mf_path, filebrowser=False):
-        self.mf_path = mf_path
         self.filebrowser = filebrowser
+        self.mf_path = mf_path
         self.refresh()
 
     def refresh(self):
@@ -87,7 +87,13 @@ class Browser(App):
         self.current_data = None
         self.move_target_path = ""
         self.rename_tagged_options = ""
+        self.search_history = []
+        self.saved_browser_history_filename = ".saved_media_browser_history"
 
+        if os.path.exists(self.saved_browser_history_filename):
+            with open(self.saved_browser_history_filename, "r") as f:
+                self.search_history = [entry.rstrip() for entry in f]
+ 
         self.master_instance = Masterfile(self.app.args.master_input_path, self.args.file_browser)
         self.master = self.master_instance.master
 
