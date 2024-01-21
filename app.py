@@ -88,12 +88,13 @@ class Browser(App):
         self.move_target_path = ""
         self.rename_tagged_options = ""
         self.search_history = []
+        self.search_entry = ""
         self.saved_browser_history_filename = ".saved_media_browser_history"
 
         if os.path.exists(self.saved_browser_history_filename):
             with open(self.saved_browser_history_filename, "r") as f:
                 self.search_history = [entry.rstrip() for entry in f]
- 
+
         self.master_instance = Masterfile(self.app.args.master_input_path, self.args.file_browser)
         self.master = self.master_instance.master
 

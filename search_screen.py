@@ -7,7 +7,7 @@ from textual.app import ComposeResult
 from textual.binding import Binding
 from textual.screen import Screen
 from textual.widgets import DataTable, Footer, Header
-from textual.widgets.data_table import RowDoesNotExist, CellDoesNotExist
+from textual.widgets.data_table import CellDoesNotExist, RowDoesNotExist
 
 # Local imports.
 import util as ut
@@ -115,12 +115,11 @@ class Search(Screen):
             self.table.move_cursor(row=closest_row)
 
     def on_data_table_header_selected(self, event):
-
         def richtext_key(key):
             if type(key) == Text:
                 return str(key)
             else:
-                 return key
+                return key
 
         key = self.table.cursor_row_key()
         if self.sort_key == event.column_key:

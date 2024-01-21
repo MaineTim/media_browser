@@ -13,6 +13,7 @@ from textual.widgets.data_table import RowDoesNotExist
 import util as ut
 from browser_data_table import BrowserDataTable
 from rename_file_input import RenameFileInput
+from search_history_screen import SearchHistory
 from search_input import SearchInput, SearchInputQuote
 from search_screen import Search
 
@@ -32,12 +33,14 @@ class Main(Screen):
         Binding("/", "search", "Search"),
         Binding("ctrl+t", "untag_all", "Untag All", show=False),
         Binding("ctrl+w", "write_masterfile", "Write Masterfile", show=False),
+        Binding("?", "search_history", "Search History", show=False),
     ]
 
     def __init__(self):
         super().__init__()
         self.platform = platform.system()
         self.p_vlc = None
+        self.resume_from_search_history = False
         self.sort_reverse = False
         self.tag_count = 0
         self.vlc_row = None
@@ -62,7 +65,12 @@ class Main(Screen):
         self.rename_file_input.remove()
         self.search_input = SearchInput(Search(), self.app.master)
         self.mount(self.search_input, after=self.table)
+        self.search_input.insert_text_at_cursor(self.app.search_entry)
         self.set_focus(self.search_input)
+
+    def action_search_history(self):
+        self.resume_from_search_history = True
+        self.app.push_screen(SearchHistory())
 
     def action_search_quote(self):
         self.rename_file_input.remove()
@@ -110,12 +118,11 @@ class Main(Screen):
         self.set_focus(self.table)
 
     def on_data_table_header_selected(self, event):
-
         def richtext_key(key):
             if type(key) == Text:
                 return str(key)
             else:
-                 return key
+                return key
 
         key = self.table.cursor_row_key()
         if self.sort_key == event.column_key:
@@ -140,6 +147,10 @@ class Main(Screen):
         self.table.call_after_refresh(self.finish_mount)
 
     def on_screen_resume(self):
+        if self.resume_from_search_history:
+            self.action_search()
+            self.resume_from_search_history = False
+
         if self.app.changed != []:
             for index, change, data in self.app.changed:
                 match change:
