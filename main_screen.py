@@ -150,6 +150,7 @@ class Main(Screen):
         if self.resume_from_search_history:
             self.action_search()
             self.resume_from_search_history = False
+            self.app.search_entry = ""
 
         if self.app.changed != []:
             for index, change, data in self.app.changed:
