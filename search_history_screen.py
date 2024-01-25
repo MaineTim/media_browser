@@ -2,9 +2,8 @@ import platform
 
 # Textual imports.
 from textual.app import ComposeResult
-from textual.binding import Binding
 from textual.screen import Screen
-from textual.widgets import Footer, Header, Label, OptionList
+from textual.widgets import Footer, Header, OptionList
 
 
 class SearchHistory(Screen):

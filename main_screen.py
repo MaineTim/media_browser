@@ -119,7 +119,7 @@ class Main(Screen):
 
     def on_data_table_header_selected(self, event):
         def richtext_key(key):
-            if type(key) == Text:
+            if isinstance(key, Text):
                 return str(key)
             else:
                 return key

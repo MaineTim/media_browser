@@ -5,7 +5,6 @@ from textual.screen import ModalScreen
 from textual.widgets import Button, Input, Label
 
 import media_library as ml
-import util as ut
 from rename_file_input import RenameFileInput
 
 

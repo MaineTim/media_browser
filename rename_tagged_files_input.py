@@ -10,7 +10,6 @@ from textual.screen import ModalScreen
 from textual.widgets import Button, Input, Label
 
 # Local imports.
-import util as ut
 from rename_file_input import RenameFileInput
 
 
@@ -71,7 +70,7 @@ class RenameTaggedFilesInput(Input):
 class RenameTaggedFilesYesNoScreen(ModalScreen):
     def compose(self):
         yield Grid(
-            Label(f"Rename tagged files?", id="question"),
+            Label("Rename tagged files?", id="question"),
             Button("Yes", variant="error", id="Yes"),
             Button("No", variant="primary", id="No"),
             id="dialog",
