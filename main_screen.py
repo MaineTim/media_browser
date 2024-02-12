@@ -22,7 +22,6 @@ class Main(Screen):
 
     BINDINGS = [
         Binding('"', "search_quote", "Quote"),
-        Binding("space", "run_viewer", "View"),
         Binding("d", "delete_file", "Del"),
         Binding("i", "file_info", "Info"),
         Binding("m", "move_file", "Move"),
@@ -39,11 +38,9 @@ class Main(Screen):
     def __init__(self):
         super().__init__()
         self.platform = platform.system()
-        self.p_vlc = None
         self.resume_from_search_history = False
         self.sort_reverse = False
         self.tag_count = 0
-        self.vlc_row = None
 
     def action_delete_file(self):
         ut.delete_file(self)
@@ -57,9 +54,6 @@ class Main(Screen):
     def action_update(self):
         self.app.master_refresh()
         self.use_name_sort()
-
-    def action_run_viewer(self):
-        ut.action_run_viewer(self)
 
     def action_search(self):
         self.rename_file_input.remove()

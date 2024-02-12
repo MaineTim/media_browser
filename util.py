@@ -36,18 +36,19 @@ def action_move_file(self):
     self.set_focus(self.move_target_input)
 
 
+# Context: BrowserDatatable
 def action_run_viewer(self):
     if self.p_vlc:
         kill_vlc(self)
-    if self.vlc_row == self.table.cursor_row:
+    if self.vlc_row == self.cursor_row:
         self.vlc_row = None
         return
     self.p_vlc = subprocess.Popen(
-        build_command("vlc", get_path(self, self.table.row_num_to_master_index(self.table.cursor_row))),
+        build_command("vlc", get_path(self, self.row_num_to_master_index(self.cursor_row))),
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
     )
-    self.vlc_row = self.table.cursor_row
+    self.vlc_row = self.cursor_row
 
 
 def action_tag(self):

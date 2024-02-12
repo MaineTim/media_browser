@@ -20,7 +20,6 @@ class Search(Screen):
 
     BINDINGS = [
         Binding("escape", "return_to_main", "Main Screen"),
-        Binding("space", "run_viewer", "View"),
         Binding("d", "delete_file", "Del"),
         Binding("i", "file_info", "Info"),
         Binding("m", "move_file", "Move"),
@@ -37,10 +36,8 @@ class Search(Screen):
         self.search_duration = 0.0
         self.entries = []
         self.platform = platform.system()
-        self.p_vlc = None
         self.sort_reverse = False
         self.tag_count = 0
-        self.vlc_row = None
 
     def action_delete_file(self):
         ut.delete_file(self)
@@ -53,9 +50,6 @@ class Search(Screen):
 
     def action_return_to_main(self):
         self.app.pop_screen()
-
-    def action_run_viewer(self):
-        ut.action_run_viewer(self)
 
     def action_search(self):
         self.rename_file_input.remove()
