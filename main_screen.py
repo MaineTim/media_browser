@@ -130,6 +130,8 @@ class Main(Screen):
     def on_data_table_row_highlighted(self, event: DataTable.CellSelected):
         self.rename_file_input.action_delete_left_all()
         self.rename_file_input.insert_text_at_cursor(self.table.row_num_to_master_attr(event.cursor_row, "name"))
+        if self.table.p_vlc and self.table.skipview:
+            ut.action_run_viewer(self.table, self.table.vlc_skiptime)
 
     def on_data_table_row_selected(self, event: DataTable.CellSelected):
         if self.table.enter_pressed:

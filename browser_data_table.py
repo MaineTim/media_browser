@@ -18,6 +18,7 @@ class BrowserDataTable(DataTable):
 
     BINDINGS = [
         Binding("space", "run_viewer", "View"),
+        Binding(":", "run_viewer_skip", "SkipView"),
     ]
 
     def __init__(self, columns, entries, *args, **kwargs):
@@ -25,14 +26,21 @@ class BrowserDataTable(DataTable):
         self.column_keys = []
         self.enter_pressed = False
         self.p_vlc = None
+        self.skipview = False
         self.table_rows = self.build_table(columns, entries)
         self.vlc_row = None
+        self.vlc_skiptime = 0
 
     def add_row(self, *args, **kwargs):
         return super().add_row(Text(args[0]), *args[1:], **kwargs)
 
     def action_run_viewer(self):
-        ut.action_run_viewer(self)
+        self.skipview = False
+        ut.action_run_viewer(self, 0)
+
+    def action_run_viewer_skip(self):
+        self.skipview = True
+        ut.action_run_viewer(self, self.vlc_skiptime)
 
     def build_table(self, columns, entries):
         if self.app.args.verbose:
