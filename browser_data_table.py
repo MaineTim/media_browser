@@ -19,6 +19,7 @@ class BrowserDataTable(DataTable):
     BINDINGS = [
         Binding("space", "run_viewer", "View"),
         Binding(":", "run_viewer_skip", "SkipView"),
+        Binding("L", "toggle_skip_length", "SkipLength")
     ]
 
     def __init__(self, columns, entries, *args, **kwargs):
@@ -29,7 +30,6 @@ class BrowserDataTable(DataTable):
         self.skipview = False
         self.table_rows = self.build_table(columns, entries)
         self.vlc_row = None
-        self.vlc_skiptime = 0
 
     def add_row(self, *args, **kwargs):
         return super().add_row(Text(args[0]), *args[1:], **kwargs)
@@ -40,7 +40,11 @@ class BrowserDataTable(DataTable):
 
     def action_run_viewer_skip(self):
         self.skipview = True
-        ut.action_run_viewer(self, self.vlc_skiptime)
+        ut.action_run_viewer(self, self.app.vlc_skiptime)
+
+    def action_toggle_skip_length(self):
+        self.app.vlc_skiptime += 30 if self.app.vlc_skiptime < 150 else -150
+        self.app.title = "Media Browser - Skip = " + str(self.app.vlc_skiptime) if self.app.vlc_skiptime > 0 else "Media Browser"
 
     def build_table(self, columns, entries):
         if self.app.args.verbose:

@@ -90,6 +90,7 @@ class Browser(App):
         self.search_history = []
         self.search_entry = ""
         self.saved_browser_history_filename = ".saved_media_browser_history"
+        self.vlc_skiptime = 0
 
         if os.path.exists(self.saved_browser_history_filename):
             with open(self.saved_browser_history_filename, "r") as f:
