@@ -19,7 +19,8 @@ class BrowserDataTable(DataTable):
     BINDINGS = [
         Binding("space", "run_viewer", "View"),
         Binding(":", "run_viewer_skip", "SkipView"),
-        Binding("L", "toggle_skip_length", "SkipLength")
+        Binding("L", "toggle_skip_length", "SkipLength"),
+        Binding("Z", "run_viewer_no_kill", "NView"),
     ]
 
     def __init__(self, columns, entries, *args, **kwargs):
@@ -37,6 +38,9 @@ class BrowserDataTable(DataTable):
     def action_run_viewer(self):
         self.skipview = False
         ut.action_run_viewer(self, 0)
+
+    def action_run_viewer_no_kill(self):
+        ut.action_run_viewer(self, 0, kill=False)
 
     def action_run_viewer_skip(self):
         self.skipview = True

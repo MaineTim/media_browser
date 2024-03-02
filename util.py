@@ -37,20 +37,22 @@ def action_move_file(self):
 
 
 # Context: BrowserDatatable
-def action_run_viewer(self, skip_time):
-    if self.p_vlc:
+def action_run_viewer(self, skip_time: int, kill=True):
+    if self.p_vlc and kill:
         kill_vlc(self)
     if self.vlc_row == self.cursor_row:
         self.vlc_row = None
         return
-    self.p_vlc = subprocess.Popen(
+    pid = subprocess.Popen(
         build_command(
             "vlc", "--start-time=" + str(skip_time), get_path(self, self.row_num_to_master_index(self.cursor_row))
         ),
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
     )
-    self.vlc_row = self.cursor_row
+    if kill:
+        self.vlc_row = self.cursor_row
+        self.p_vlc = pid
 
 
 def action_tag(self):
