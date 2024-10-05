@@ -11,7 +11,7 @@ class Info(Screen):
 
     BINDINGS = [
         (Binding("escape, space", "return_to_main", "Main Screen", key_display="ESC/SPACE")),
-        ("q", "quit", "Quit"),
+        ("q", "app.quit", "Quit"),
     ]
 
     def __init__(self):

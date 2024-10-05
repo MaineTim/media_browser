@@ -23,7 +23,7 @@ class Search(Screen):
         Binding("d", "delete_file", "Del"),
         Binding("i", "file_info", "Info"),
         Binding("m", "move_file", "Move"),
-        Binding("q", "quit", "Quit"),
+        Binding("q", "app.quit", "Quit"),
         Binding("r", "tagged_rename", "taggedRename"),
         Binding("t", "tag", "Tag"),
         Binding("/", "search", "Search"),
