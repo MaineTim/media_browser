@@ -161,6 +161,7 @@ class Main(Screen):
                             self.table.index_to_row_key(index), self.table.column_keys[0], Text(data)
                         )
             self.app.changed = []
+        self.app.update_title(file_count=len(self.table.table_rows), search_terms = "")
 
     def use_name_sort(self):
         self.table.clear()

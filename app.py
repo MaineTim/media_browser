@@ -5,7 +5,6 @@ import pickle
 # Textual imports.
 from textual.app import App, CSSPathType
 from textual.driver import Driver
-
 # Local imports.
 import media_library as ml
 import util as ut
@@ -85,12 +84,16 @@ class Browser(App):
         self.args = Getargs()
         self.changed = []
         self.current_data = None
+        self.file_count = 0
         self.move_target_path = ""
         self.rename_tagged_options = ""
+        self.search_terms = ""
         self.search_history = []
         self.search_entry = ""
         self.saved_browser_history_filename = ".saved_media_browser_history"
         self.vlc_skiptime = 0
+
+        self.title = f"Media Browser: {self.file_count} files"
 
         if os.path.exists(self.saved_browser_history_filename):
             with open(self.saved_browser_history_filename, "r") as f:
@@ -104,8 +107,15 @@ class Browser(App):
         self.push_screen("main")
 
     def master_refresh(self):
+
         self.master_instance.refresh()
         self.master = self.master_instance.master
+
+    def update_title(self, *, file_count = None, search_terms = None):
+
+        self.app.file_count = file_count if file_count is not None else self.app.file_count
+        self.app.search_terms = search_terms if search_terms is not None else self.app.search_terms
+        self.title = f"Media Browser: {self.app.file_count} files. {self.app.search_terms}"
 
 
 if __name__ == "__main__":

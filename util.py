@@ -130,6 +130,7 @@ def delete_file(self):
         self.app.changed.append((master_index, "D", ""))
     self.set_focus(self.table)
     self.table.remove_row(self.table.cursor_row_key())
+    self.app.update_title(file_count = self.table.row_count)
 
 
 def exit_error(*error_data):

@@ -36,6 +36,7 @@ class Search(Screen):
         self.search_duration = 0.0
         self.entries = []
         self.platform = platform.system()
+        self.search_terms = ""
         self.sort_reverse = False
         self.tag_count = 0
 
@@ -155,3 +156,6 @@ class Search(Screen):
                             )
                         except CellDoesNotExist:
                             ...
+        self.app.update_title(file_count=len(self.table.table_rows), search_terms = self.search_terms)
+
+

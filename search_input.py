@@ -33,6 +33,7 @@ class SearchInput(Input):
         else:
             self.search_screen.entries = ut.search_strings(self, self.search_entries, self.targets)
         if self.search_screen.entries != []:
+            self.search_screen.search_terms = self.value
             self.app.push_screen(self.search_screen)
         self.action_input_cancel()
 
@@ -64,6 +65,7 @@ class SearchInputQuote(Input):
         else:
             self.search_screen.entries = ut.search_strings(self, self.search_entries, self.targets)
         if self.search_screen.entries != []:
+            self.search_screen.search_terms = self.value
             self.app.push_screen(self.search_screen)
         self.action_input_cancel()
 
