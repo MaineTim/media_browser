@@ -90,6 +90,7 @@ class Browser(App):
         self.search_terms = ""
         self.search_history = []
         self.search_entry = ""
+        self.skip_str = ""
         self.saved_browser_history_filename = ".saved_media_browser_history"
         self.vlc_skiptime = 0
 
@@ -111,11 +112,13 @@ class Browser(App):
         self.master_instance.refresh()
         self.master = self.master_instance.master
 
-    def update_title(self, *, file_count = None, search_terms = None):
+    def update_title(self, *, file_count = None, search_terms = None, skip_length = None):
 
         self.app.file_count = file_count if file_count is not None else self.app.file_count
         self.app.search_terms = search_terms if search_terms is not None else self.app.search_terms
-        self.title = f"Media Browser: {self.app.file_count} files. {self.app.search_terms}"
+        self.app.vlc_skiptime = skip_length if skip_length is not None else self.app.vlc_skiptime
+        self.app.skip_str = "" if self.app.vlc_skiptime == 0 else f" Skip: {str(self.app.vlc_skiptime)} secs."
+        self.title = f"Media Browser: {self.app.file_count} files. {self.app.search_terms} {self.app.skip_str}"
 
 
 if __name__ == "__main__":

@@ -48,7 +48,7 @@ class BrowserDataTable(DataTable):
 
     def action_toggle_skip_length(self):
         self.app.vlc_skiptime += 30 if self.app.vlc_skiptime < 150 else -150
-        self.app.title = "Media Browser - Skip = " + str(self.app.vlc_skiptime) if self.app.vlc_skiptime > 0 else "Media Browser"
+        self.app.update_title()
 
     def build_table(self, columns, entries):
         if self.app.args.verbose:
